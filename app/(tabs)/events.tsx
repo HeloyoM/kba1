@@ -1,12 +1,13 @@
-// src/screens/Messages.js
+
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '@/utils/colors';
+import Profile from './profile';
 
-export default function Messages() {
+export default function Events() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Events (coming soon)</Text>
+      <Profile />
     </View>
   );
 }

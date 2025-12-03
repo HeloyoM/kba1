@@ -8,12 +8,13 @@ import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 import Auth from '@/components/Auth';
 import Header from '@/components/Header';
+import Profile from './profile';
+import Home from './home';
 
 export default function HomeScreen() {
   return (
     <View style={{ width: '100%', height: '100%' }}>
-      <Header />
-      <Auth />
+      <Home />
     </View>
   );
 }

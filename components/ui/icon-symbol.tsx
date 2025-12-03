@@ -21,7 +21,13 @@ const MAPPING = {
   'person': 'person',
   'box.truck': 'chat-bubble-outline',
   'person.2.badge': 'people-outline',
-  'environments': 'edit-calendar'
+  'environments': 'edit-calendar',
+  'camera': 'camera-alt',
+  'circle': 'circle',
+  'clock': 'lock-clock',
+  'message.circle': 'message',
+  'x.circle': 'close',
+  'arrow.down': 'download'
 } as IconMapping;
 
 /**

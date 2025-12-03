@@ -1,13 +1,15 @@
 import { login, logout, sigupWithEmailPasswrodMethod } from '@/api/users/users';
+import { useAppUser } from '@/context/auth.context';
 import { GoogleSigninButton, User } from '@react-native-google-signin/google-signin';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
 const LoginForm = () => {
-    const [user, setUser] = useState<User['user'] | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+
+    const { setUser, user } = useAppUser();
 
     return (
         <View style={styles.loginFormContainer}>

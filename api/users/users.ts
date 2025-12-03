@@ -46,7 +46,7 @@ const login = async () => {
             if (await isUserExist(response.data.user.email)) {
                 await insertUser(response.data.user)
             }
-
+            
             return response.data.user as unknown as User['user'];
         }
     } catch (error) {
