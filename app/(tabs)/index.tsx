@@ -7,10 +7,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 import Auth from '@/components/Auth';
+import Header from '@/components/Header';
 
 export default function HomeScreen() {
   return (
-    <View style={{  width: '100%', height: '100%' }}>
+    <View style={{ width: '100%', height: '100%' }}>
+      <Header />
       <Auth />
     </View>
   );

@@ -1,16 +1,29 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Pressable } from 'react-native'
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
-import { getUsersList } from '@/api/users';
+import Animated, {
+    useAnimatedStyle,
+    withTiming,
+} from 'react-native-reanimated';
+
+const COLLAPSED_HEIGHT = 0;
+const EXPANDED_HEIGHT = 300;
+const TIMING_CONFIG = { duration: 500 };
 
 const Auth = () => {
-    const [expandLogin, setExpandLogin] = useState<boolean>(true);
+    const colorScheme = useColorScheme();
+    const [expandLogin, setExpandLogin] = useState<boolean>(false);
     const [expandSignup, setExpandSignup] = useState<boolean>(false);
 
-    useEffect(() => {
-        getUsersList()
-    }, [])
+    const animatedStyle = useAnimatedStyle(() => ({
+        height: withTiming(expandLogin ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT, TIMING_CONFIG),
+    }));
+
+    const animatedSignupStyle = useAnimatedStyle(() => ({
+        height: withTiming(expandSignup ? 200 : COLLAPSED_HEIGHT, TIMING_CONFIG),
+    }));
+
     return (
         <View style={{
             display: 'flex',
@@ -19,12 +32,8 @@ const Auth = () => {
             width: '100%',
             height: '100%',
             gap: 3,
-            borderBlockColor: 'red',
-            borderColor: 'red',
-            borderCurve: 'circular',
-            borderWidth: 1.5,
         }}>
-            <Text style={{ color: '#000' }}>Welcome</Text>
+            <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Welcome</Text>
             <Pressable
                 style={({ hovered }) => [
                     {
@@ -41,7 +50,12 @@ const Auth = () => {
             >
                 <Text style={styles.buttonLabel}>Login</Text>
             </Pressable>
-            {expandLogin && <LoginForm />}
+
+            {expandLogin &&
+                <Animated.View style={[styles.box, animatedStyle]}>
+                    <LoginForm />
+                </Animated.View>
+            }
 
             <Pressable
                 style={{
@@ -53,7 +67,11 @@ const Auth = () => {
                 onPress={() => setExpandSignup((prev) => !prev)}>
                 <Text style={styles.buttonLabel}>Sign Up</Text>
             </Pressable>
-            {expandSignup && <SignupForm />}
+            {expandSignup &&
+                <Animated.View style={[styles.box, animatedSignupStyle]}>
+                    <SignupForm />
+                </Animated.View>
+            }
             <Pressable
                 style={{
                     backgroundColor: '#3a3a3a',
@@ -73,6 +91,15 @@ const styles = StyleSheet.create({
     buttonLabel: {
         color: '#fff',
         margin: 'auto',
-
-    }
+    },
+    container: {
+        paddingTop: 80,
+        paddingHorizontal: 24,
+    },
+    box: {
+        // width: '100%',
+        overflow: 'hidden',
+        // backgroundColor: '#eee',
+        marginTop: 16,
+    },
 })

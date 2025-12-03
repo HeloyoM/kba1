@@ -1,27 +1,28 @@
-import React, { useState } from 'react'
-import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native'
-import { login, logout } from '@/api/users';
+import { login, logout, sigupWithEmailPasswrodMethod } from '@/api/users/users';
 import { GoogleSigninButton, User } from '@react-native-google-signin/google-signin';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
 const LoginForm = () => {
     const [user, setUser] = useState<User['user'] | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+
     return (
         <View style={styles.loginFormContainer}>
             {user !== null && <Text style={{ color: '#fff', fontSize: 25 }}>{user.givenName}</Text>}
             <Text style={{ margin: 'auto', fontSize: 16, color: '#fff' }}>Continue With</Text>
             <View style={styles.socialConnection}>
-                <Pressable style={styles.cell}>
-                    <GoogleSigninButton onPress={async () => {
+                {/* <Pressable style={styles.cell}> */}
+                <GoogleSigninButton
+                    color={'dark'}
+                    style={{ width: '50%' }}
+                    onPress={async () => {
                         const data = await login();
-                        console.log({ data })
                         setUser(data as unknown as User['user'])
                     }} />
-
-
-                </Pressable>
+                {/* </Pressable> */}
                 <Pressable style={styles.cell}>
                     <Text style={{ color: '#fff' }}>Facebook</Text>
                 </Pressable>
@@ -38,7 +39,7 @@ const LoginForm = () => {
                 }}
             ><Text style={{ color: 'white' }}>Or</Text></View>
 
-            <Pressable
+            {user !== null && <Pressable
                 style={({ hovered }) => [
                     {
                         backgroundColor: '#8a3ffc',
@@ -53,14 +54,27 @@ const LoginForm = () => {
                 onPress={logout}
             >
                 <Text style={styles.buttonLabel}>logout</Text>
-            </Pressable>
+            </Pressable>}
 
             <View style={{ marginTop: 15, marginBottom: 15, gap: 8, display: 'flex', alignItems: 'center' }}>
-                <TextInput placeholderTextColor={'#ededed'} style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#ededed', borderRadius: 12, width: '75%' }} placeholder='Email address' value={email} onChangeText={setEmail} />
+                <TextInput
+                    placeholderTextColor={'#ededed'}
+                    style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#ededed', borderRadius: 12, width: '75%' }}
+                    placeholder='Email address'
+                    value={email}
+                    onChangeText={setEmail}
+                />
 
-                <TextInput placeholderTextColor={'#ededed'} style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#fff', borderRadius: 12, width: '75%' }} placeholder='Password' value={password} onChangeText={setPassword} />
+                <TextInput
+                    placeholderTextColor={'#ededed'}
+                    style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#fff', borderRadius: 12, width: '75%' }}
+                    placeholder='Password'
+                    value={password}
+                    onChangeText={setPassword}
+                />
 
                 <Pressable
+                    onPress={() => sigupWithEmailPasswrodMethod({ email, password })}
                     style={({ hovered }) => [
                         {
                             backgroundColor: '#8a3ffc',
