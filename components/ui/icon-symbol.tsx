@@ -27,7 +27,9 @@ const MAPPING = {
   'clock': 'lock-clock',
   'message.circle': 'message',
   'x.circle': 'close',
-  'arrow.down': 'download'
+  'arrow.down': 'download',
+  'mappin.circle': 'pin',
+  'globe': 'golf-course'
 } as IconMapping;
 
 /**

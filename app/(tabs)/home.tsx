@@ -1,8 +1,9 @@
 // src/screens/Home.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import Card from '@/components/Card';
 import { colors } from '@/utils/colors';
+import { useAppUser } from '@/context/auth.context';
 
 const demo = [
     { title: 'Welcome!', subtitle: 'Community feed and announcements', accent: colors.blue },
@@ -12,6 +13,7 @@ const demo = [
 ];
 
 export default function Home() {
+    const {user} =useAppUser()
     return (
         <SafeAreaView style={styles.safe}>
             <ScrollView contentContainerStyle={{ padding: 16 }}>
