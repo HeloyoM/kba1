@@ -1,0 +1,40 @@
+import { Campaign } from "@/app/(tabs)/community";
+
+export const mockCampaigns: Campaign[] = Array.from({ length: 10 }, (_, i) => ({
+    id: `campaign-${i + 1}`,
+    title: `Campaign Title ${i + 1}`,
+    description: `Short description for campaign ${i + 1}.`,
+    fullDescription: `This is a full description for campaign ${i + 1}. It can include more detailed text, explaining the purpose, goals, and how people can participate.`,
+    type: ['donate', 'volunteer', 'awareness', 'petition', 'event'][i % 5] as any,
+    status: ['active', 'completed', 'upcoming'][i % 3] as any,
+    image: `https://picsum.photos/seed/campaign${i + 1}/600/400`,
+    organizer: {
+        name: `Organizer ${i + 1}`,
+        avatar: `https://i.pravatar.cc/150?img=${i + 1}`,
+        role: i % 2 === 0 ? 'Coordinator' : 'Manager',
+    },
+    goal: i % 2 === 0 ? 1000 * (i + 1) : undefined,
+    current: i % 2 === 0 ? Math.floor(Math.random() * 1000 * (i + 1)) : undefined,
+    unit: i % 2 === 0 ? 'USD' : undefined,
+    startDate: new Date(2025, 11, i + 1).toISOString(),
+    endDate: new Date(2026, 0, i + 10).toISOString(),
+    deadline: new Date(2026, 0, i + 5).toDateString(),
+    participants: Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, j) => ({
+        id: `participant-${i + 1}-${j + 1}`,
+        name: `Participant ${j + 1}`,
+        avatar: `https://i.pravatar.cc/150?img=${j + 11}`,
+        contribution: i % 2 === 0 ? `${Math.floor(Math.random() * 500)} USD` : undefined,
+    })),
+    tags: [`tag${i + 1}`, `tag${i + 2}`, `tag${i + 3}`],
+    featured: i % 2 === 0,
+    urgent: i % 3 === 0,
+    trending: i % 4 === 0,
+    mediaGallery: Array.from({ length: 3 }, (_, k) => `https://picsum.photos/seed/campaign${i + 1}-media${k + 1}/400/200`),
+    comments: Array.from({ length: Math.floor(Math.random() * 3) }, (_, c) => ({
+        id: `comment-${i + 1}-${c + 1}`,
+        author: `Commenter ${c + 1}`,
+        avatar: `https://i.pravatar.cc/150?img=${c + 21}`,
+        content: `This is comment ${c + 1} for campaign ${i + 1}.`,
+        timestamp: new Date().toDateString(),
+    })),
+}));
