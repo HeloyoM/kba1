@@ -5,21 +5,26 @@ import { useState, createContext, useContext } from 'react';
 interface AppUserContextProps {
     user: User['user'] | null;
     setUser: (user: User['user']) => void;
+    loading: boolean;
+    setLoading: (val: boolean) => void;
 }
 
 const AuthContext = createContext<AppUserContextProps | undefined>(undefined);
 
 const AppUserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User['user'] | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const updateCurrentUser = (userData: User['user']) => {
         setUser(userData);
-    };
+    }
 
     const defaultValue = {
         user,
         setUser: updateCurrentUser,
-    };
+        loading,
+        setLoading
+    }
 
     return (
         <AuthContext.Provider value={defaultValue}>

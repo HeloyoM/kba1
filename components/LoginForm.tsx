@@ -1,33 +1,55 @@
-import { login, logout, sigupWithEmailPasswrodMethod } from '@/api/users/users';
+import { login, sigupWithEmailPasswrodMethod } from '@/api/users/users';
 import { useAppUser } from '@/context/auth.context';
 import { GoogleSigninButton, User } from '@react-native-google-signin/google-signin';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-
+import { CircularProgress } from '@expo/ui/jetpack-compose';
 
 const LoginForm = () => {
+    const router = useRouter();
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
-    const { setUser, user } = useAppUser();
+    const { setUser, setLoading, loading } = useAppUser();
+
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            const data = await login();
+
+            if (data !== null) {
+                setUser(data as unknown as User['user']);
+                setTimeout(() => {
+                    setLoading(false)
+                    router.replace('/(tabs)/home');
+                }, 3000)
+            }
+
+        } catch (error) {
+            setLoading(false);
+        }
+    }
 
     return (
         <View style={styles.loginFormContainer}>
-            {user !== null && <Text style={{ color: '#fff', fontSize: 25 }}>{user.givenName}</Text>}
             <Text style={{ margin: 'auto', fontSize: 16, color: '#fff' }}>Continue With</Text>
             <View style={styles.socialConnection}>
-                {/* <Pressable style={styles.cell}> */}
-                <GoogleSigninButton
-                    color={'dark'}
-                    style={{ width: '50%' }}
-                    onPress={async () => {
-                        const data = await login();
-                        setUser(data as unknown as User['user'])
-                    }} />
-                {/* </Pressable> */}
+
+                {loading ? (
+                    <CircularProgress color='#6495ED' />
+                ) :
+                    (<GoogleSigninButton
+                        color={'dark'}
+                        style={{ width: '50%' }}
+                        onPress={handleLogin} />)
+                }
+
+
                 <Pressable style={styles.cell}>
                     <Text style={{ color: '#fff' }}>Facebook</Text>
                 </Pressable>
+
                 <Pressable style={styles.bottomCell}>
                     <Text style={{ color: '#fff' }}>Apple</Text>
                 </Pressable>
@@ -40,23 +62,6 @@ const LoginForm = () => {
                     width: '100%',
                 }}
             ><Text style={{ color: 'white' }}>Or</Text></View>
-
-            {user !== null && <Pressable
-                style={({ hovered }) => [
-                    {
-                        backgroundColor: '#8a3ffc',
-                        width: '95%',
-                        borderRadius: 12,
-                        height: 43,
-                    },
-                    hovered && {
-                        backgroundColor: '#7433d4',
-                    },
-                ]}
-                onPress={logout}
-            >
-                <Text style={styles.buttonLabel}>logout</Text>
-            </Pressable>}
 
             <View style={{ marginTop: 15, marginBottom: 15, gap: 8, display: 'flex', alignItems: 'center' }}>
                 <TextInput

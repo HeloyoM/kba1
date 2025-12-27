@@ -1,46 +1,19 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
-import { colors } from '@/utils/colors';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Pressable } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import Toast from "react-native-toast-message";
 import { EventFeed } from '@/components/EventFeed';
 import { EventDetails } from '@/components/EventDetails';
 import EventCreation from '@/components/EventCreation';
-
-export type IEvent = {
-  id: string;
-  title: string;
-  date: Date;
-  time: string;
-  location: string;
-  isOnline: boolean;
-  description: string;
-  fullDescription: string;
-  coverImage: string;
-  category: string;
-  organizer: {
-    name: string;
-    avatar: string;
-    contact: string;
-  };
-  attendees: number;
-  capacity?: number;
-  interested: number;
-  schedule: { time: string; activity: string }[];
-  pastPhotos: string[];
-  comments: { user: string; avatar: string; comment: string; time: string }[];
-  featured?: boolean;
-  trending?: boolean;
-  userRSVP?: "joined" | "interested" | null;
-};
+import { IEvent } from '@/interface/events.interface';
+import { getEventsList, insertEvet } from '@/api/events/events';
 
 type ViewType = "feed" | "details" | "create";
 
 export default function Events() {
   const [currentView, setCurrentView] = useState<ViewType>("feed");
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
-  const [darkMode, setDarkMode] = useState<boolean>(false);
 
   const handleEventClick = (event: IEvent) => {
     setSelectedEvent(event);
@@ -56,16 +29,12 @@ export default function Events() {
     setCurrentView("create");
   };
 
-  const handleEventCreated = () => {
-    Toast.show({ type: "success", text1: "Event created!" });
-    setCurrentView("feed");
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
         barStyle={"dark-content"}
       />
+
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.iconBox}>
@@ -94,6 +63,11 @@ export default function Events() {
       </View>
 
       <View style={styles.content}>
+
+        {/* <Pressable onPress={migrationFunc}>
+          <Text> Migrate</Text>
+        </Pressable> */}
+
         {currentView === "feed" && (
           <EventFeed onEventClick={handleEventClick} />
         )}
@@ -102,7 +76,6 @@ export default function Events() {
         )}
         {currentView === "create" && (
           <EventCreation
-            onEventCreated={handleEventCreated}
             onCancel={handleBackToFeed}
           />
         )}

@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import { IEvent } from "@/app/(tabs)/events";
-import { mockEvents } from '@/data/mock-events';
+import { IEvent } from "@/interface/events.interface";
+import { getEventsList } from "@/api/events/events";
 
 type ViewMode = "list" | "calendar";
 type DateFilter = "all" | "today" | "week" | "upcoming";
@@ -14,13 +14,33 @@ interface EventFeedProps {
 
 
 export function EventFeed({ onEventClick }: EventFeedProps) {
-    const [events] = useState<IEvent[]>(mockEvents);
+    const [events, setEvents] = useState<IEvent[]>([]);
     const [viewMode, setViewMode] = useState<ViewMode>("list");
     const [searchQuery, setSearchQuery] = useState("");
     const [dateFilter, setDateFilter] = useState<DateFilter>("all");
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [sortBy, setSortBy] = useState<SortOption>("newest");
 
+
+    useEffect(() => {
+        if (events.length) return
+
+        else {
+            fetchEvents()
+        }
+    }, [events])
+
+    const fetchEvents = async () => {
+        try {
+            const eventsList = await getEventsList();
+
+            if (eventsList) {
+                setEvents(eventsList)
+            }
+        } catch (error) {
+
+        }
+    }
     const categories = useMemo(() => {
         const cats = new Set(events.map((e) => e.category));
         return ["all", ...Array.from(cats)];
@@ -56,10 +76,10 @@ export function EventFeed({ onEventClick }: EventFeedProps) {
 
             return true;
         });
-
+        console.log({ filtered })
         filtered.sort((a, b) => {
-            if (sortBy === "newest") {
-                return b.date.getTime() - a.date.getTime();
+            if (sortBy === "newest") { // Todo: invalid date Timesamp is arraving from db
+                return new Date(b.date).getUTCMilliseconds() - new Date(a.date).getUTCMilliseconds();
             } else if (sortBy === "trending") {
                 return (b.trending ? 1 : 0) - (a.trending ? 1 : 0);
             } else if (sortBy === "popular") {

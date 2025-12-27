@@ -1,4 +1,4 @@
-import { IEvent } from "@/app/(tabs)/events";
+import { IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
 } from "@expo/vector-icons";

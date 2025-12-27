@@ -5,8 +5,6 @@ import { Feather } from "@expo/vector-icons";
 import { mockCampaigns } from '@/data/mock-campaigns';
 import { FeaturedCarousel } from './FeaturedCarousel';
 import { CampaignCard } from './CampaignCard';
-// import { CampaignCard } from './CampaignCard';
-// import { FeaturedCarousel } from './FeaturedCarousel';
 
 interface CampaignFeedProps {
     onViewCampaign: (campaign: Campaign) => void;

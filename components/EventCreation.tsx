@@ -9,7 +9,10 @@ import {
     StyleSheet,
 } from "react-native";
 import { IconSymbol } from "./ui/icon-symbol";
-// import {} from '@expo/vector-icons'
+import Toast from "react-native-toast-message";
+import { insertEvet } from "@/api/events/events";
+import { IEvent } from "@/interface/events.interface";
+import dayjs from 'dayjs';
 
 interface ScheduleItem {
     time: string;
@@ -17,24 +20,22 @@ interface ScheduleItem {
 }
 
 interface EventCreationProps {
-    onEventCreated: () => void;
     onCancel: () => void;
 }
 
 export default function EventCreation({
-    onEventCreated,
     onCancel,
 }: EventCreationProps) {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<Partial<IEvent>>({
         title: "",
         description: "",
-        date: "",
+        date: new Date(),
         time: "",
         location: "",
         isOnline: false,
         category: "",
-        capacity: "",
-        imageUrl: "",
+        capacity: 0,
+        coverImage: "",
     });
 
     const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([
@@ -53,6 +54,15 @@ export default function EventCreation({
         "Social",
     ];
 
+    const handleEventCreated = () => {
+        Alert.alert("Event Created", `${formData.title} has been published.`);
+        Toast.show({ type: "success", text1: "Event created!" });
+        const newEvent = formData
+        insertEvet(newEvent)
+
+        // setCurrentView("feed");
+    };
+
     const updateScheduleItem = (
         index: number,
         field: keyof ScheduleItem,
@@ -69,11 +79,6 @@ export default function EventCreation({
 
     const removeScheduleItem = (index: number) => {
         setScheduleItems(scheduleItems.filter((_, i) => i !== index));
-    };
-
-    const handleSubmit = () => {
-        Alert.alert("Event Created", `${formData.title} has been published.`);
-        onEventCreated();
     };
 
     const styles = lightStyles;
@@ -117,8 +122,8 @@ export default function EventCreation({
                         <Text style={styles.label}>Date *</Text>
                         <TextInput
                             style={styles.input}
-                            value={formData.date}
-                            onChangeText={(v) => setFormData({ ...formData, date: v })}
+                            // value={formData.date}
+                            onChangeText={(v) => setFormData({ ...formData, date: new Date(v) })}
                             placeholder="YYYY-MM-DD"
                             placeholderTextColor={styles.placeholder.color}
                         />
@@ -194,8 +199,8 @@ export default function EventCreation({
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
-                        value={formData.capacity}
-                        onChangeText={(v) => setFormData({ ...formData, capacity: v })}
+                        value={dayjs(formData.capacity).format('DD/MM/YYYY')}
+                        onChangeText={(v) => setFormData({ ...formData, capacity: dayjs(v).valueOf() })}
                         placeholder="Unlimited"
                         placeholderTextColor={styles.placeholder.color}
                     />
@@ -206,8 +211,8 @@ export default function EventCreation({
                     <Text style={styles.label}>Cover Image URL</Text>
                     <TextInput
                         style={styles.input}
-                        value={formData.imageUrl}
-                        onChangeText={(v) => setFormData({ ...formData, imageUrl: v })}
+                        value={formData.coverImage}
+                        onChangeText={(v) => setFormData({ ...formData, coverImage: v })}
                         placeholder="https://example.com/img.jpg"
                         placeholderTextColor={styles.placeholder.color}
                     />
@@ -258,7 +263,7 @@ export default function EventCreation({
                         <Text style={styles.cancelText}>Cancel</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
+                    <TouchableOpacity style={styles.submitBtn} onPress={handleEventCreated}>
                         <Text style={styles.submitText}>Create Event</Text>
                     </TouchableOpacity>
                 </View>

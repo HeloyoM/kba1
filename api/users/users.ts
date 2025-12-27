@@ -1,6 +1,6 @@
 import { db, auth } from '@/config/firebase';
 import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, getDoc, doc, getDocs, addDoc, serverTimestamp, query, where, } from 'firebase/firestore';
+import { collection, getDoc, doc, getDocs, addDoc, serverTimestamp, query, where, setDoc, } from 'firebase/firestore';
 import {
     GoogleSignin,
     statusCodes,
@@ -10,6 +10,7 @@ import {
     User
 } from '@react-native-google-signin/google-signin';
 import { isUserExist } from './utiles';
+
 
 const getUsersList = async () => {
     try {
@@ -46,7 +47,7 @@ const login = async () => {
             if (await isUserExist(response.data.user.email)) {
                 await insertUser(response.data.user)
             }
-            
+
             return response.data.user as unknown as User['user'];
         }
     } catch (error) {
@@ -71,7 +72,7 @@ const logout = async () => {
             webClientId: "673592063163-crlnbboi32r854h4s4jullj2pqomedop.apps.googleusercontent.com",
             offlineAccess: true,
         });
-        console.log('logging out...')
+
         await GoogleSignin.signOut();
     } catch (error) {
         console.log({ error })
@@ -82,6 +83,7 @@ const insertUser = async (user: User['user']): Promise<void> => {
     const timeStamp = serverTimestamp();
 
     const newUser = {
+        id: user.id,
         createdAt: timeStamp,
         email: user.email,
         first_name: user.name,
@@ -93,8 +95,10 @@ const insertUser = async (user: User['user']): Promise<void> => {
         role: 'user',
         subscriptionExpires: new Date().getTime() + 1000000
     };
+    await setDoc(doc(db, 'users', user.id), newUser)
 
-    await addDoc(collection(db, 'users'), newUser);
+    // await addDoc(collection(db, 'users'), newUser);
+     
 }
 
 const siginWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
