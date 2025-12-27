@@ -2,59 +2,16 @@ import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { CampaignFeed } from '@/components/CampaignFeed';
 import { CampaignDetails } from '@/components/CampaignDetails';
+import { ICampaign } from '@/interface/campaign.interface';
 // import { CampaignForm } from '@/components/CampaignForm';
-
-export type CampaignType = 'donate' | 'volunteer' | 'awareness' | 'petition' | 'event';
-
-export type CampaignStatus = 'active' | 'completed' | 'upcoming';
-
-export interface Campaign {
-    id: string;
-    title: string;
-    description: string;
-    fullDescription: string;
-    type: CampaignType;
-    status: CampaignStatus;
-    image: string;
-    organizer: {
-        name: string;
-        avatar: string;
-        role: string;
-    };
-    goal?: number;
-    current?: number;
-    unit?: string;
-    startDate: string;
-    endDate: string;
-    deadline: string;
-    participants: Array<{
-        id: string;
-        name: string;
-        avatar: string;
-        contribution?: string;
-    }>;
-    tags: string[];
-    featured: boolean;
-    urgent: boolean;
-    trending: boolean;
-    mediaGallery?: string[];
-    comments: Array<{
-        id: string;
-        author: string;
-        avatar: string;
-        content: string;
-        timestamp: string;
-    }>;
-}
-
 
 type ViewType = 'feed' | 'details' | 'create' | 'edit';
 
 export default function Community() {
     const [currentView, setCurrentView] = useState<ViewType>('feed');
-    const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+    const [selectedCampaign, setSelectedCampaign] = useState<ICampaign | null>(null);
 
-    const handleViewCampaign = (campaign: Campaign) => {
+    const handleViewCampaign = (campaign: ICampaign) => {
         setSelectedCampaign(campaign);
         setCurrentView('details');
     };
@@ -64,7 +21,7 @@ export default function Community() {
         setCurrentView('create');
     };
 
-    const handleEditCampaign = (campaign: Campaign) => {
+    const handleEditCampaign = (campaign: ICampaign) => {
         setSelectedCampaign(campaign);
         setCurrentView('edit');
     };
@@ -74,7 +31,7 @@ export default function Community() {
         setSelectedCampaign(null);
     };
 
-    const handleSaveCampaign = (campaign: Campaign) => {
+    const handleSaveCampaign = (campaign: ICampaign) => {
         // In a real app, this would save to backend
         console.log('Saving campaign:', campaign);
         handleBackToFeed();

@@ -1,6 +1,6 @@
-import { Campaign } from "@/app/(tabs)/community";
+import { ICampaign } from "@/interface/campaign.interface";
 
-export const mockCampaigns: Campaign[] = Array.from({ length: 10 }, (_, i) => ({
+export const mockCampaigns: ICampaign[] = Array.from({ length: 10 }, (_, i) => ({
     id: `campaign-${i + 1}`,
     title: `Campaign Title ${i + 1}`,
     description: `Short description for campaign ${i + 1}.`,

@@ -25,10 +25,6 @@ interface EventDetailsProps {
     onBack: () => void;
 }
 
-/**
- * Simple ImageWithFallback for RN:
- * - tries `src`, onError uses fallback placeholder
- */
 function ImageWithFallback({
     src,
     style,

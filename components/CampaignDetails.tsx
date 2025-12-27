@@ -1,4 +1,3 @@
-import { Campaign } from '@/app/(tabs)/community';
 import React, { useState } from 'react';
 import {
     View,
@@ -13,13 +12,12 @@ import {
 } from 'react-native';
 import { Feather } from "@expo/vector-icons";
 import { ImageWithFallback } from './ImageWithFallback';
-// import { ImageWithFallback } from './ImageWithFallback';
-// import { Campaign } from '@/app/(tabs)/community';
+import { ICampaign } from '@/interface/campaign.interface';
 
 interface CampaignDetailsProps {
-    campaign: Campaign;
+    campaign: ICampaign;
     onBack: () => void;
-    onEdit: (campaign: Campaign) => void;
+    onEdit: (campaign: ICampaign) => void;
 }
 
 export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsProps) {

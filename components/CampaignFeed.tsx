@@ -1,27 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { Campaign, CampaignType } from '@/app/(tabs)/community';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, FlatList, Pressable } from 'react-native';
 import { Feather } from "@expo/vector-icons";
-import { mockCampaigns } from '@/data/mock-campaigns';
 import { FeaturedCarousel } from './FeaturedCarousel';
 import { CampaignCard } from './CampaignCard';
+import { CampaignType, ICampaign } from '@/interface/campaign.interface';
+import { getCampaignsList, migrationFunc } from '@/api/campaigns/campaigns';
 
 interface CampaignFeedProps {
-    onViewCampaign: (campaign: Campaign) => void;
+    onViewCampaign: (campaign: ICampaign) => void;
     onCreateCampaign: () => void;
 }
 
 type SortOption = 'deadline' | 'popularity' | 'recent';
 
 export function CampaignFeed({ onViewCampaign, onCreateCampaign }: CampaignFeedProps) {
+    const [campaigns, setCampaigns] = useState<ICampaign[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [selectedType, setSelectedType] = useState<CampaignType | 'all'>('all');
     const [sortBy, setSortBy] = useState<SortOption>('deadline');
-    const featuredCampaigns = mockCampaigns.filter((c: Campaign) => c.featured);
+    const featuredCampaigns = campaigns.filter((c: ICampaign) => c.featured);
 
 
-    const filteredCampaigns = mockCampaigns.filter((campaign: Campaign) => {
+    useEffect(() => {
+        if (campaigns.length) return
+
+        else {
+            fetchCampaigns()
+        }
+    }, [campaigns])
+
+    const fetchCampaigns = async () => {
+        try {
+            const campaignsList = await getCampaignsList();
+
+            if (campaignsList) {
+                setCampaigns(campaignsList)
+            }
+        } catch (error) {
+
+        }
+    }
+
+    const filteredCampaigns = campaigns.filter((campaign: ICampaign) => {
         const matchesSearch =
             campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             campaign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,7 +61,7 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign }: CampaignFeedP
     });
 
     //     const trendingCampaigns = mockCampaigns.filter((c: Campaign) => c.trending);
-    const urgentCampaigns = mockCampaigns.filter((c: Campaign) => c.urgent);
+    const urgentCampaigns = campaigns.filter((c: ICampaign) => c.urgent);
 
     const campaignTypes: Array<{ value: CampaignType | 'all'; label: string }> = [
         { value: 'all', label: 'All' },
