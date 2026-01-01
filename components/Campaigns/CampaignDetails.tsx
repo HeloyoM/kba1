@@ -6,6 +6,7 @@ import {
     Alert,
     FlatList,
     Image,
+    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -14,6 +15,10 @@ import {
     View,
 } from 'react-native';
 import { ImageWithFallback } from '../ImageWithFallback';
+import { CampaignActionButton } from './CampaignActionButton';
+import { CampaignHeader } from './CampaignHeader';
+import { calculateProgress, getCampaignActionConfig } from './campaignHelpers';
+import { CampaignProgress } from './CampaignProgress';
 
 interface CampaignDetailsProps {
     campaign: ICampaign;
@@ -21,30 +26,49 @@ interface CampaignDetailsProps {
     onEdit: (campaign: ICampaign) => void;
 }
 
+type TabId = 'about' | 'participants' | 'comments';
+
+interface TabConfig {
+    id: TabId;
+    label: string;
+    getBadgeCount?: (campaign: ICampaign) => number;
+}
+
+const TABS: TabConfig[] = [
+    { id: 'about', label: 'About' },
+    {
+        id: 'participants',
+        label: 'Participants',
+        getBadgeCount: (campaign) => campaign.participants.length
+    },
+    {
+        id: 'comments',
+        label: 'Comments',
+        getBadgeCount: (campaign) => campaign.comments.length
+    },
+];
+
 export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsProps) {
-    const [activeTab, setActiveTab] = useState<'about' | 'participants' | 'comments'>('about');
+    const [activeTab, setActiveTab] = useState<TabId>('about');
     const [newComment, setNewComment] = useState('');
     const [liked, setLiked] = useState(false);
 
-    const progress =
-        campaign.goal && campaign.current ? (campaign.current / campaign.goal) * 100 : 0;
+    const progress = calculateProgress(campaign.current, campaign.goal);
 
-    //     const getTypeIcon = () => {
-    //         const icons: Record<string, string> = {
-    //             donate: 'dollar-sign',
-    //             volunteer: 'heart',
-    //             awareness: 'bell',
-    //             petition: 'message-circle',
-    //             event: 'calendar',
-    //         };
-    //         return icons[campaign.type] || 'bell';
-    //     };
+    const getTypeIcon = (type: string): React.ComponentProps<typeof Feather>['name'] => {
+        const icons: Record<string, React.ComponentProps<typeof Feather>['name']> = {
+            donate: 'dollar-sign',
+            volunteer: 'heart',
+            awareness: 'bell',
+            petition: 'message-circle',
+            event: 'calendar',
+        };
+        return icons[type] || 'bell';
+    };
 
     const handleParticipate = () => Alert.alert(`You've participated in: ${campaign.title}`);
     const handleDonate = () => Alert.alert(`Opening donation form for: ${campaign.title}`);
     const handleShare = () => Alert.alert('Share', 'Share functionality not implemented.');
-
-    // ...
 
     const handleDelete = () =>
         Alert.alert('Delete', 'Are you sure you want to delete this campaign?', [
@@ -64,25 +88,32 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
             },
         ]);
 
+
+    const getStatusStyle = () => {
+        switch (campaign.status) {
+            case 'active':
+                return styles.statusActive;
+            case 'upcoming':
+                return styles.statusUpcoming;
+            default:
+                return styles.statusDefault;
+        }
+    };
+
+    const primaryAction = getCampaignActionConfig(campaign.type, {
+        onDonate: handleDonate,
+        onParticipate: handleParticipate,
+    });
+
     return (
-        <>
+        <SafeAreaView>
             <ScrollView style={styles.container}>
 
-
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={onBack}>
-                        <Feather name="arrow-left" size={20} color="#333" />
-                        <Text style={styles.backText}>Back</Text>
-                    </TouchableOpacity>
-                    <View style={styles.headerActions}>
-                        <TouchableOpacity onPress={() => onEdit(campaign)} style={styles.iconButton}>
-                            <Feather name="edit" size={20} color="#333" />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDelete} style={styles.iconButton}>
-                            <Feather name="trash-2" size={20} color="red" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <CampaignHeader
+                    onBack={onBack}
+                    onEdit={() => onEdit(campaign)}
+                    onDelete={handleDelete}
+                />
 
 
                 <View style={styles.heroImageContainer}>
@@ -92,17 +123,8 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
                         style={styles.heroImage}
                     />
                     {campaign.status && (
-                        <View
-                            style={[
-                                styles.statusBadge,
-                                campaign.status === 'active'
-                                    ? { backgroundColor: '#22c55e' }
-                                    : campaign.status === 'upcoming'
-                                        ? { backgroundColor: '#3b82f6' }
-                                        : { backgroundColor: '#6b7280' },
-                            ]}
-                        >
-                            <Text style={styles.statusText}>{campaign.status.toUpperCase()}</Text>
+                        <View style={[styles.statusBadge, getStatusStyle()]}>
+                            <Text style={styles.statusText}>{campaign.status}</Text>
                         </View>
                     )}
                 </View>
@@ -111,10 +133,15 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
                 <View style={styles.infoContainer}>
 
                     <View style={styles.typeTitle}>
-                        <Feather size={20} color="#3b82f6" style={styles.typeIcon} />
+                        <Feather
+                            name={getTypeIcon(campaign.type)}
+                            size={20}
+                            color="#3b82f6"
+                            style={styles.typeIcon}
+                        />
                         <View>
                             <Text style={styles.campaignType}>
-                                {campaign.type.charAt(0).toUpperCase() + campaign.type.slice(1)} Campaign
+                                {campaign.type} Campaign
                             </Text>
                             <Text style={styles.campaignTitle}>{campaign.title}</Text>
                         </View>
@@ -130,10 +157,14 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
 
 
                     <View style={styles.infoRow}>
-                        <Feather name="calendar" size={16} color="#555" />
-                        <Text style={styles.infoText}>{campaign.deadline}</Text>
-                        <Feather name="users" size={16} color="#555" style={{ marginLeft: 16 }} />
-                        <Text style={styles.infoText}>{campaign.participants.length} participants</Text>
+                        <View style={styles.infoItem}>
+                            <Feather name="calendar" size={16} color="#555" />
+                            <Text style={styles.infoText}>{campaign.deadline}</Text>
+                        </View>
+                        <View style={[styles.infoItem, styles.infoSeparator]}>
+                            <Feather name="users" size={16} color="#555" />
+                            <Text style={styles.infoText}>{campaign.participants.length} participants</Text>
+                        </View>
                     </View>
 
 
@@ -150,34 +181,20 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
                                 </View>
                                 <Text style={styles.progressPercent}>{progress.toFixed(0)}%</Text>
                             </View>
-                            <View style={styles.progressBar}>
-                                <View style={[styles.progressFill, { width: `${Math.min(progress, 100)}%` }]} />
-                            </View>
+                            <CampaignProgress percent={progress} height={8} />
                         </View>
                     )}
 
 
-
-
                     <View style={styles.actionsRow}>
-                        {campaign.type === 'donate' && (
-                            <TouchableOpacity style={styles.primaryButton} onPress={handleDonate}>
-                                <Feather name="dollar-sign" size={16} color="#fff" />
-                                <Text style={styles.primaryButtonText}>Donate Now</Text>
-                            </TouchableOpacity>
+                        {primaryAction && (
+                            <CampaignActionButton
+                                icon={primaryAction.icon}
+                                label={primaryAction.text}
+                                onPress={primaryAction.onPress}
+                            />
                         )}
-                        {(campaign.type === 'volunteer' || campaign.type === 'event') && (
-                            <TouchableOpacity style={styles.primaryButton} onPress={handleParticipate}>
-                                <Feather name="heart" size={16} color="#fff" />
-                                <Text style={styles.primaryButtonText}>Join Campaign</Text>
-                            </TouchableOpacity>
-                        )}
-                        {campaign.type === 'awareness' && (
-                            <TouchableOpacity style={styles.primaryButton} onPress={handleParticipate}>
-                                <Feather name="bell" size={16} color="#fff" />
-                                <Text style={styles.primaryButtonText}>Spread Awareness</Text>
-                            </TouchableOpacity>
-                        )}
+
                         <TouchableOpacity style={styles.secondaryButton} onPress={handleShare}>
                             <Feather name="share-2" size={16} color="#333" />
                             <Text style={styles.secondaryButtonText}>Share</Text>
@@ -191,43 +208,31 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
                                 {liked ? 'Liked' : 'Like'}
                             </Text>
                         </TouchableOpacity>
+
                     </View>
 
                 </View >
 
                 <View style={styles.tabsContainer}>
-                    <View style={styles.tabButtonsRow}>
-                        <TouchableOpacity
-                            style={[styles.tabButton, activeTab === 'about' && styles.tabButtonActive]}
-                            onPress={() => setActiveTab('about')}
-                        >
-                            <Text style={[styles.tabButtonText, activeTab === 'about' && styles.tabButtonTextActive]}>
-                                About
-                            </Text>
-                        </TouchableOpacity>
+                    <View style={styles.tabNavigation}>
+                        {TABS.map((tab) => {
+                            const isActive = activeTab === tab.id;
+                            const label = tab.getBadgeCount
+                                ? `${tab.label} (${tab.getBadgeCount(campaign)})`
+                                : tab.label;
 
-                        <TouchableOpacity
-                            style={[styles.tabButton, activeTab === 'participants' && styles.tabButtonActive]}
-                            onPress={() => setActiveTab('participants')}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabButtonText,
-                                    activeTab === 'participants' && styles.tabButtonTextActive,
-                                ]}
-                            >
-                                Participants ({campaign.participants.length})
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.tabButton, activeTab === 'comments' && styles.tabButtonActive]}
-                            onPress={() => setActiveTab('comments')}
-                        >
-                            <Text style={[styles.tabButtonText, activeTab === 'comments' && styles.tabButtonTextActive]}>
-                                Comments ({campaign.comments.length})
-                            </Text>
-                        </TouchableOpacity>
+                            return (
+                                <TouchableOpacity
+                                    key={tab.id}
+                                    style={[styles.tabButton, isActive && styles.tabButtonActive]}
+                                    onPress={() => setActiveTab(tab.id)}
+                                >
+                                    <Text style={[styles.tabButtonText, isActive && styles.tabButtonTextActive]}>
+                                        {label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </View>
             </ScrollView>
@@ -313,32 +318,27 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
                     </View>
                 )}
             </View>
-        </>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f8f8f8' },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 16,
-        alignItems: 'center',
-    },
-    backButton: { flexDirection: 'row', alignItems: 'center' },
-    backText: { marginLeft: 6, fontSize: 16, color: '#333' },
-    headerActions: { flexDirection: 'row', alignItems: 'center' },
-    iconButton: { marginLeft: 12 },
+
+
 
     heroImageContainer: { height: 240, marginHorizontal: 16, borderRadius: 20, overflow: 'hidden', marginBottom: 16 },
     heroImage: { width: '100%', height: '100%' },
     statusBadge: { position: 'absolute', top: 10, right: 10, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20 },
+    statusActive: { backgroundColor: '#22c55e' },
+    statusUpcoming: { backgroundColor: '#3b82f6' },
+    statusDefault: { backgroundColor: '#6b7280' },
     statusText: { color: '#fff', fontWeight: 'bold' },
 
     infoContainer: { marginHorizontal: 16, marginBottom: 24 },
     typeTitle: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
     typeIcon: { marginRight: 8 },
-    campaignType: { color: '#555' },
+    campaignType: { color: '#555', textTransform: 'capitalize' },
     campaignTitle: { fontSize: 20, fontWeight: 'bold' },
 
     tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
@@ -346,6 +346,8 @@ const styles = StyleSheet.create({
     tagText: { color: '#555' },
 
     infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+    infoItem: { flexDirection: 'row', alignItems: 'center' },
+    infoSeparator: { marginLeft: 16 },
     infoText: { marginLeft: 4, color: '#555' },
 
     progressContainer: { marginBottom: 16 },
@@ -363,7 +365,7 @@ const styles = StyleSheet.create({
     secondaryButtonText: { color: '#333', marginLeft: 6 },
 
     tabsContainer: { marginHorizontal: 16 },
-    tabButtonsRow: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#ccc' },
+    tabNavigation: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#ccc' },
     tabButton: { flex: 1, paddingVertical: 12, alignItems: 'center' },
     tabButtonActive: { borderBottomWidth: 2, borderColor: '#3b82f6' },
     tabButtonText: { color: '#555' },

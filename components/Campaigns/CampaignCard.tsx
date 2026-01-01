@@ -4,6 +4,8 @@ import { ImageStyle, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 
 import { ICampaign } from '@/interface/campaign.interface';
 import { ImageWithFallback } from '../ImageWithFallback';
 import { IconSymbol } from '../ui/icon-symbol';
+import { calculateProgress } from './campaignHelpers';
+import { CampaignProgress } from './CampaignProgress';
 
 // --- Constants ---
 
@@ -38,7 +40,7 @@ interface CampaignCardProps {
 }
 
 export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: CampaignCardProps) {
-    const progress = campaign.goal && campaign.current ? (campaign.current / campaign.goal) * 100 : 0;
+    const progress = calculateProgress(campaign.current, campaign.goal);
     const typeColor = getTypeColor(campaign.type);
     const statusColor = getStatusColor(campaign.status);
 
@@ -92,9 +94,7 @@ export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: Ca
                                 {progress.toFixed(0)}%
                             </Text>
                         </View>
-                        <View style={styles.progressBarBackground}>
-                            <View style={[styles.progressBarFill, { width: `${Math.min(progress, 100)}%` }]} />
-                        </View>
+                        <CampaignProgress percent={progress} height={6} />
                         <Text style={styles.progressGoal}>
                             Goal: {campaign.goal.toLocaleString()} {campaign.unit}
                         </Text>

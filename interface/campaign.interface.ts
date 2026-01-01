@@ -1,4 +1,12 @@
-export type CampaignType = 'donate' | 'volunteer' | 'awareness' | 'petition' | 'event';
+export enum CampaignTypeEnum {
+    DONATE = 'donate',
+    VOLUNTEER = 'volunteer',
+    AWARENESS = 'awareness',
+    PETITION = 'petition',
+    EVENT = 'event',
+}
+
+export type CampaignType = CampaignTypeEnum;
 
 export type CampaignStatus = 'active' | 'completed' | 'upcoming';
 
