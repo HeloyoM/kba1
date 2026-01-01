@@ -1,10 +1,12 @@
-import { login, sigupWithEmailPasswrodMethod } from '@/api/users/users';
-import { useAppUser } from '@/context/auth.context';
-import { GoogleSigninButton, User } from '@react-native-google-signin/google-signin';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
+import { login, sigupWithEmailPasswrodMethod } from '@/api/auth/auth';
+import { useAppUser } from '@/context/auth.context';
+import IUser from '@/interface/user.interface';
+// import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { appStaticConfig } from '@/constants/config';
 
 const LoginForm = () => {
     const router = useRouter();
@@ -19,14 +21,16 @@ const LoginForm = () => {
             const data = await login();
 
             if (data !== null) {
-                setUser(data as unknown as User['user']);
+                setUser(data as IUser);
+
                 setTimeout(() => {
                     setLoading(false)
                     router.replace('/(tabs)/home');
-                }, 3000)
+                }, appStaticConfig.pages.login_timeout)
             }
 
         } catch (error) {
+            alert(`An error occured in login proccess: ${error}`)
             setLoading(false);
         }
     }
@@ -36,14 +40,14 @@ const LoginForm = () => {
             <Text style={{ margin: 'auto', fontSize: 16, color: '#fff' }}>Continue With</Text>
             <View style={styles.socialConnection}>
 
-                {loading ? (
+                {/* {loading ? (
                     <CircularProgress color='#6495ED' />
                 ) :
                     (<GoogleSigninButton
                         color={'dark'}
                         style={{ width: '50%' }}
                         onPress={handleLogin} />)
-                }
+                } */}
 
 
                 <Pressable style={styles.cell}>

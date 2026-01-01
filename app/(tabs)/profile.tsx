@@ -1,6 +1,6 @@
 import { useColorScheme, Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import ProfileHeader from "@/components/ProfileHeader";
-import { PersonalInfoSection } from "@/components/PersonalInfoSection";
+import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
+import { PersonalInfoSection } from "@/components/PersonalArea/PersonalInfoSection";
 import { AccountSettingsSection } from "@/components/AccountSettingsSection";
 import ActivityOverview from "@/components/ActivityOverview";
 import SecuritySection from "@/components/SecuritySection";

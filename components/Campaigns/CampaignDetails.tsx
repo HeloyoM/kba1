@@ -1,18 +1,19 @@
+import { deleteCampaign } from '@/api/campaigns/campaigns';
+import { ICampaign } from '@/interface/campaign.interface';
+import { Feather } from "@expo/vector-icons";
 import React, { useState } from 'react';
 import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    TextInput,
-    Image,
-    StyleSheet,
-    FlatList,
     Alert,
+    FlatList,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { Feather } from "@expo/vector-icons";
-import { ImageWithFallback } from './ImageWithFallback';
-import { ICampaign } from '@/interface/campaign.interface';
+import { ImageWithFallback } from '../ImageWithFallback';
 
 interface CampaignDetailsProps {
     campaign: ICampaign;
@@ -42,10 +43,25 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
     const handleParticipate = () => Alert.alert(`You've participated in: ${campaign.title}`);
     const handleDonate = () => Alert.alert(`Opening donation form for: ${campaign.title}`);
     const handleShare = () => Alert.alert('Share', 'Share functionality not implemented.');
+
+    // ...
+
     const handleDelete = () =>
-        Alert.alert('Delete', 'Are you sure?', [
+        Alert.alert('Delete', 'Are you sure you want to delete this campaign?', [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Delete', style: 'destructive', onPress: onBack },
+            {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await deleteCampaign(campaign.id);
+                        onBack();
+                    } catch (error) {
+                        console.error(error);
+                        Alert.alert("Error", "Failed to delete campaign");
+                    }
+                }
+            },
         ]);
 
     return (

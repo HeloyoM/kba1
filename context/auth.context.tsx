@@ -1,10 +1,9 @@
-// // ctx.tsx
-import { User } from '@react-native-google-signin/google-signin';
+import IUser from '@/interface/user.interface';
 import { useState, createContext, useContext } from 'react';
 
 interface AppUserContextProps {
-    user: User['user'] | null;
-    setUser: (user: User['user']) => void;
+    user: IUser | null;
+    setUser: (user: IUser) => void;
     loading: boolean;
     setLoading: (val: boolean) => void;
 }
@@ -12,10 +11,10 @@ interface AppUserContextProps {
 const AuthContext = createContext<AppUserContextProps | undefined>(undefined);
 
 const AppUserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User['user'] | null>(null);
+    const [user, setUser] = useState<IUser | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const updateCurrentUser = (userData: User['user']) => {
+    const updateCurrentUser = (userData: IUser) => {
         setUser(userData);
     }
 
@@ -42,6 +41,7 @@ const useAppUser = () => {
 };
 
 export { AppUserProvider, useAppUser };
+
 // type UserProps = User | null
 
 // const AuthContext = createContext({ user: {} as UserProps, isLoading: false });

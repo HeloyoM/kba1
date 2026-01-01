@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { colors } from '@/utils/colors';
 import { Feather } from '@expo/vector-icons';
-import MessageCard from '@/components/MessageCard';
-import MessageDetail from '@/components/MessageDetail';
+import MessageCard from '@/components/Messages/MessageCard';
+import MessageDetail from '@/components/Messages/MessageDetail';
 import AdminMessageForm from '@/components/AdminMessageForm';
 
 export interface IMessage {

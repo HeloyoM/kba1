@@ -37,7 +37,7 @@ function ImageWithFallback({
     alt?: string;
 }) {
     const [error, setError] = useState(false);
-    const uri = !error && src ? { uri: src } : require("../assets/images/image-placeholder.jpg"); // add a local placeholder at this path
+    const uri = !error && src ? { uri: src } : require("../../assets/images/image-placeholder.jpg"); // add a local placeholder at this path
 
     return (
         <Image

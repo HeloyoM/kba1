@@ -1,78 +1,87 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ImageStyle, ViewStyle } from 'react-native';
-import { ImageWithFallback } from './ImageWithFallback';
-import { Campaign } from '@/app/(tabs)/community';
-import { IconSymbol } from './ui/icon-symbol';
+import React, { memo } from 'react';
+import { ImageStyle, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+
+import { ICampaign } from '@/interface/campaign.interface';
+import { ImageWithFallback } from '../ImageWithFallback';
+import { IconSymbol } from '../ui/icon-symbol';
+
+// --- Constants ---
+
+const STATUS_COLORS: Record<string, string> = {
+    active: '#22c55e',
+    completed: '#6b7280',
+    upcoming: '#3b82f6',
+};
+
+const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    donate: { bg: '#d1fae5', text: '#15803d' },
+    volunteer: { bg: '#dbeafe', text: '#1d4ed8' },
+    awareness: { bg: '#ede9fe', text: '#6b21a8' },
+    petition: { bg: '#ffedd5', text: '#c2410c' },
+    event: { bg: '#fce7f3', text: '#be185d' },
+};
+
+const DEFAULT_STATUS_COLOR = '#6b7280';
+const DEFAULT_TYPE_COLOR = { bg: '#f3f4f6', text: '#374151' };
+
+// --- Helper Functions ---
+
+const getStatusColor = (status: string) => STATUS_COLORS[status] || DEFAULT_STATUS_COLOR;
+const getTypeColor = (type: string) => TYPE_COLORS[type] || DEFAULT_TYPE_COLOR;
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+// --- Component ---
 
 interface CampaignCardProps {
-    campaign: Campaign;
-    onClick: () => void;
+    campaign: ICampaign;
+    onPress: () => void;
 }
 
-export function CampaignCard({ campaign, onClick }: CampaignCardProps) {
+export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: CampaignCardProps) {
     const progress = campaign.goal && campaign.current ? (campaign.current / campaign.goal) * 100 : 0;
-
-    const getStatusColor = (status: string) => {
-        const colors: Record<string, string> = {
-            active: '#22c55e',
-            completed: '#6b7280',
-            upcoming: '#3b82f6',
-        };
-        return colors[status] || '#6b7280';
-    };
-
-    const getTypeColor = (type: string) => {
-        const colors: Record<string, { bg: string; text: string }> = {
-            donate: { bg: '#d1fae5', text: '#15803d' },
-            volunteer: { bg: '#dbeafe', text: '#1d4ed8' },
-            awareness: { bg: '#ede9fe', text: '#6b21a8' },
-            petition: { bg: '#ffedd5', text: '#c2410c' },
-            event: { bg: '#fce7f3', text: '#be185d' },
-        };
-        return colors[type] || { bg: '#f3f4f6', text: '#374151' };
-    };
-
     const typeColor = getTypeColor(campaign.type);
     const statusColor = getStatusColor(campaign.status);
 
     return (
-        <TouchableOpacity style={styles.card} onPress={onClick}>
-            {/* Image */}
+        <TouchableOpacity style={styles.card} onPress={onPress}>
+            {/* Image Section */}
             <View style={styles.imageContainer}>
                 <ImageWithFallback
                     source={{ uri: campaign.image }}
                     style={styles.image}
                 />
-                {/* Status indicator */}
+
                 <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-                {/* Badges */}
+
                 <View style={styles.badgesContainer}>
                     <View style={[styles.badge, { backgroundColor: typeColor.bg }]}>
                         <Text style={[styles.badgeText, { color: typeColor.text }]}>
-                            {campaign.type.charAt(0).toUpperCase() + campaign.type.slice(1)}
+                            {capitalize(campaign.type)}
                         </Text>
                     </View>
+
                     {campaign.trending && (
-                        <View style={[styles.badge, { backgroundColor: '#fef3c7', flexDirection: 'row', alignItems: 'center' }]}>
+                        <View style={[styles.badge, styles.trendingBadge]}>
                             <IconSymbol name="arrow.up.forward.and.arrow.down.backward" size={12} color="#b45309" />
-                            <Text style={[styles.badgeText, { color: '#b45309', marginLeft: 4 }]}>Trending</Text>
+                            <Text style={[styles.badgeText, styles.trendingText]}>Trending</Text>
                         </View>
                     )}
+
                     {campaign.urgent && (
-                        <View style={[styles.badge, { backgroundColor: '#fee2e2', flexDirection: 'row', alignItems: 'center' }]}>
+                        <View style={[styles.badge, styles.urgentBadge]}>
                             <IconSymbol name="alarm.fill" size={12} color="#b91c1c" />
-                            <Text style={[styles.badgeText, { color: '#b91c1c', marginLeft: 4 }]}>Urgent</Text>
+                            <Text style={[styles.badgeText, styles.urgentText]}>Urgent</Text>
                         </View>
                     )}
                 </View>
             </View>
 
-            {/* Content */}
+            {/* Content Section */}
             <View style={styles.content}>
                 <Text style={styles.title} numberOfLines={2}>{campaign.title}</Text>
                 <Text style={styles.description} numberOfLines={2}>{campaign.description}</Text>
 
-                {/* Progress */}
+                {/* Progress Bar */}
                 {campaign.goal && campaign.current !== undefined && (
                     <View style={styles.progressContainer}>
                         <View style={styles.progressHeader}>
@@ -92,7 +101,7 @@ export function CampaignCard({ campaign, onClick }: CampaignCardProps) {
                     </View>
                 )}
 
-                {/* Meta Info */}
+                {/* Meta Information */}
                 <View style={styles.metaContainer}>
                     <View style={styles.metaItem}>
                         <IconSymbol name="calendar" size={14} color="#4b5563" />
@@ -115,7 +124,7 @@ export function CampaignCard({ campaign, onClick }: CampaignCardProps) {
             </View>
         </TouchableOpacity>
     );
-}
+});
 
 const styles = StyleSheet.create({
     card: {
@@ -159,6 +168,24 @@ const styles = StyleSheet.create({
     badgeText: {
         fontSize: 10,
         fontWeight: '500',
+    },
+    trendingBadge: {
+        backgroundColor: '#fef3c7',
+        flexDirection: 'row',
+        alignItems: 'center',
+    } as ViewStyle,
+    trendingText: {
+        color: '#b45309',
+        marginLeft: 4,
+    },
+    urgentBadge: {
+        backgroundColor: '#fee2e2',
+        flexDirection: 'row',
+        alignItems: 'center',
+    } as ViewStyle,
+    urgentText: {
+        color: '#b91c1c',
+        marginLeft: 4,
     },
     content: {
         padding: 12,

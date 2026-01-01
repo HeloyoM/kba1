@@ -15,7 +15,7 @@ const ProfileHeader = () => {
     );
     const [tempBio, setTempBio] = useState(bio);
     const [avatarUrl, setAvatarUrl] = useState(
-        user?.photo
+        user?.photoUrl
     );
     console.log({ user })
     const handleAvatarClick = () => {
@@ -31,7 +31,7 @@ const ProfileHeader = () => {
 
             {/* Avatar */}
             <View style={styles.avatarWrapper}>
-                <Image source={{ uri: user.photo! }} style={styles.avatar} />
+                <Image source={{ uri: user.photoUrl! }} style={styles.avatar} />
 
                 <TouchableOpacity onPress={handleAvatarClick} style={styles.cameraBtn}>
                     <IconSymbol size={28} name="camera" color={'#fff'} />

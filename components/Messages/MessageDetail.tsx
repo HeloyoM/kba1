@@ -1,7 +1,7 @@
 import { IMessage } from "@/app/(tabs)/messages";
 import { useRef } from "react";
 import { Animated, Pressable, StyleSheet, View, Image, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native";
-import { IconSymbol } from "./ui/icon-symbol";
+import { IconSymbol } from "../ui/icon-symbol";
 
 type Props = {
     message: IMessage | null

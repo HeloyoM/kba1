@@ -1,6 +1,5 @@
-import { login, logout, sigupWithEmailPasswrodMethod } from '@/api/users/users';
-import { GoogleSigninButton, User } from '@react-native-google-signin/google-signin';
 import React, { useState } from 'react';
+import { sigupWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 const SignupForm = () => {
