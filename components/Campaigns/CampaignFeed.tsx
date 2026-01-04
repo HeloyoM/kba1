@@ -1,39 +1,34 @@
 import { getCampaignsList } from '@/api/campaigns/campaigns';
-import { CampaignType, ICampaign } from '@/interface/campaign.interface';
+import { CampaignType, CampaignTypeEnum, ICampaign } from '@/interface/campaign.interface';
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { FeaturedCarousel } from '../FeaturedCarousel';
 import { CampaignCard } from './CampaignCard';
 
-// --- Types & Interfaces ---
-
 interface CampaignFeedProps {
     onViewCampaign: (campaign: ICampaign) => void;
     onCreateCampaign: () => void;
 }
 
-type SortOption = 'deadline' | 'popularity' | 'recent';
+type SortOption = 'deadline' | 'popularity' | 'recent' | 'donate' | 'volunteer' | 'awareness' | 'petition' | 'event';
 
 interface FilterOption {
-    value: CampaignType | 'all';
+    value: CampaignTypeEnum | 'all';
     label: string;
 }
 
-// --- Constants ---
-
 const CAMPAIGN_TYPES: FilterOption[] = [
     { value: 'all', label: 'All' },
-    { value: 'donate', label: 'Donate' },
-    { value: 'volunteer', label: 'Volunteer' },
-    { value: 'awareness', label: 'Awareness' },
-    { value: 'petition', label: 'Petition' },
-    { value: 'event', label: 'Event' },
+    { value: CampaignTypeEnum.DONATE, label: 'Donate' },
+    { value: CampaignTypeEnum.VOLUNTEER, label: 'Volunteer' },
+    { value: CampaignTypeEnum.AWARENESS, label: 'Awareness' },
+    { value: CampaignTypeEnum.PETITION, label: 'Petition' },
+    { value: CampaignTypeEnum.EVENT, label: 'Event' },
 ];
 
-const SORT_OPTIONS: SortOption[] = ['deadline', 'popularity', 'recent'];
 
-// --- Sub-Components ---
+const SORT_OPTIONS: SortOption[] = ['deadline', 'popularity', 'recent', 'donate', 'volunteer', 'awareness', 'petition', 'event'];
 
 const Header = ({ onCreate }: { onCreate: () => void }) => (
     <View style={styles.header}>

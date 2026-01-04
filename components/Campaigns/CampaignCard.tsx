@@ -46,7 +46,7 @@ export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: Ca
 
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
-            {/* Image Section */}
+
             <View style={styles.imageContainer}>
                 <ImageWithFallback
                     source={{ uri: campaign.image }}
@@ -78,12 +78,12 @@ export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: Ca
                 </View>
             </View>
 
-            {/* Content Section */}
+
             <View style={styles.content}>
                 <Text style={styles.title} numberOfLines={2}>{campaign.title}</Text>
                 <Text style={styles.description} numberOfLines={2}>{campaign.description}</Text>
 
-                {/* Progress Bar */}
+
                 {campaign.goal && campaign.current !== undefined && (
                     <View style={styles.progressContainer}>
                         <View style={styles.progressHeader}>
@@ -101,7 +101,7 @@ export const CampaignCard = memo(function CampaignCard({ campaign, onPress }: Ca
                     </View>
                 )}
 
-                {/* Meta Information */}
+
                 <View style={styles.metaContainer}>
                     <View style={styles.metaItem}>
                         <IconSymbol name="calendar" size={14} color="#4b5563" />
