@@ -1,3 +1,5 @@
+export type EventRSVPStatus = "joined" | "interested" | null;
+
 export type IEvent = {
     id: string;
     title: string;
@@ -22,5 +24,5 @@ export type IEvent = {
     comments: { user: string; avatar: string; comment: string; time: string }[];
     featured?: boolean;
     trending?: boolean;
-    userRSVP?: "joined" | "interested" | null;
+    userRSVP?: EventRSVPStatus;
 };

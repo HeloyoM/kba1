@@ -1,4 +1,4 @@
-import { IEvent } from "@/interface/events.interface";
+import { EventRSVPStatus, IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
 } from "@expo/vector-icons";
@@ -51,13 +51,13 @@ function ImageWithFallback({
 }
 
 export function EventDetails({ event, onBack }: EventDetailsProps) {
-    const [rsvpStatus, setRsvpStatus] = useState<"joined" | "interested" | null>(
-        (event.userRSVP as "joined" | "interested" | null) ?? null
+    const [rsvpStatus, setRsvpStatus] = useState<EventRSVPStatus>(
+        (event.userRSVP as EventRSVPStatus) ?? null
     );
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [newComment, setNewComment] = useState("");
 
-    const handleRSVP = (status: "joined" | "interested") => {
+    const handleRSVP = (status: Exclude<EventRSVPStatus, null>) => {
         if (rsvpStatus === status) {
             setRsvpStatus(null);
             Toast.show({
