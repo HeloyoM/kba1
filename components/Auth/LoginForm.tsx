@@ -5,7 +5,7 @@ import { CircularProgress } from '@expo/ui/jetpack-compose';
 import { login, sigupWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { useAppUser } from '@/context/auth.context';
 import IUser from '@/interface/user.interface';
-// import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { appStaticConfig } from '@/constants/config';
 
 const LoginForm = () => {
@@ -40,14 +40,14 @@ const LoginForm = () => {
             <Text style={{ margin: 'auto', fontSize: 16, color: '#fff' }}>Continue With</Text>
             <View style={styles.socialConnection}>
 
-                {/* {loading ? (
+                {loading ? (
                     <CircularProgress color='#6495ED' />
                 ) :
                     (<GoogleSigninButton
                         color={'dark'}
                         style={{ width: '50%' }}
                         onPress={handleLogin} />)
-                } */}
+                }
 
 
                 <Pressable style={styles.cell}>

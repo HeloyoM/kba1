@@ -161,9 +161,9 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                         )}
                     </View>
 
-                    <Text style={[styles.heroTitle, styles.textDark]}>
+                    <View><Text style={[styles.heroTitle, styles.textDark]}>
                         {event.title}
-                    </Text>
+                    </Text></View>
                 </View>
             </View>
 

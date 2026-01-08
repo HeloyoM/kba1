@@ -17,9 +17,10 @@ const PARTICIPANTS_TAB_TEXT = {
     CONTRIBUTED_LABEL: 'Contributed:',
 };
 
-export function ParticipantsTabContent({ participants }: ParticipantsTabContentProps) {
+export function ParticipantsTabContent({ participants, header }: ParticipantsTabContentProps & { header: React.ReactNode }) {
     return (
         <FlatList
+            ListHeaderComponent={<>{header}</>}
             data={participants}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (

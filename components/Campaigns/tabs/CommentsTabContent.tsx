@@ -28,37 +28,40 @@ export function CommentsTabContent({
     commentInputText,
     onCommentTextChange,
     onPostComment,
-}: CommentsTabContentProps) {
+    header,
+}: CommentsTabContentProps & { header: React.ReactNode }) {
     return (
         <View style={styles.container}>
-            
-            <View style={styles.commentInputRow}>
-                <Image
-                    source={{ uri: CURRENT_USER_AVATAR }}
-                    style={styles.commentAvatar}
-                />
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        value={commentInputText}
-                        onChangeText={onCommentTextChange}
-                        placeholder={COMMENTS_TAB_TEXT.COMMENT_PLACEHOLDER}
-                        style={styles.commentInput}
-                        multiline
-                    />
-                    <TouchableOpacity
-                        style={styles.postCommentButton}
-                        onPress={onPostComment}
-                    >
-                        <Text style={styles.postCommentButtonText}>
-                            {COMMENTS_TAB_TEXT.POST_BUTTON_TEXT}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            
             <FlatList
                 data={comments}
+                ListHeaderComponent={
+                    <>
+                        {header}
+                        <View style={styles.commentInputRow}>
+                            <Image
+                                source={{ uri: CURRENT_USER_AVATAR }}
+                                style={styles.commentAvatar}
+                            />
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    value={commentInputText}
+                                    onChangeText={onCommentTextChange}
+                                    placeholder={COMMENTS_TAB_TEXT.COMMENT_PLACEHOLDER}
+                                    style={styles.commentInput}
+                                    multiline
+                                />
+                                <TouchableOpacity
+                                    style={styles.postCommentButton}
+                                    onPress={onPostComment}
+                                >
+                                    <Text style={styles.postCommentButtonText}>
+                                        {COMMENTS_TAB_TEXT.POST_BUTTON_TEXT}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </>
+                }
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <View style={styles.commentRow}>

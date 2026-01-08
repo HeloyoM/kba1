@@ -5,11 +5,10 @@ import React, { useState } from 'react';
 import {
     Alert,
     SafeAreaView,
-    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { ImageWithFallback } from '../ImageWithFallback';
 import { CampaignActionButton } from './CampaignActionButton';
@@ -101,145 +100,146 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
 
     const activeTab = TABS.find(tab => tab.id === activeTabId);
 
-    return (
-        <SafeAreaView>
-            <ScrollView style={styles.container}>
-                <CampaignHeader
-                    onBack={onBack}
-                    onEdit={() => onEdit(campaign)}
-                    onDelete={handleDelete}
+    const renderHeader = () => (
+        <View>
+            <CampaignHeader
+                onBack={onBack}
+                onEdit={() => onEdit(campaign)}
+                onDelete={handleDelete}
+            />
+
+            <View style={styles.heroImageContainer}>
+                <ImageWithFallback
+                    src={campaign.image}
+                    alt={campaign.title}
+                    style={styles.heroImage}
                 />
-
-                <View style={styles.heroImageContainer}>
-                    <ImageWithFallback
-                        src={campaign.image}
-                        alt={campaign.title}
-                        style={styles.heroImage}
-                    />
-                    {campaign.status && (
-                        <View style={[styles.statusBadge, statusStyle]}>
-                            <Text style={styles.statusText}>{campaign.status}</Text>
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.infoContainer}>
-                    <View style={styles.typeTitle}>
-                        <Feather
-                            name={typeIcon}
-                            size={20}
-                            color="#3b82f6"
-                            style={styles.typeIcon}
-                        />
-                        <View>
-                            <Text style={styles.campaignType}>
-                                {campaign.type} Campaign
-                            </Text>
-                            <Text style={styles.campaignTitle}>{campaign.title}</Text>
-                        </View>
+                {campaign.status && (
+                    <View style={[styles.statusBadge, statusStyle]}>
+                        <Text style={styles.statusText}>{campaign.status}</Text>
                     </View>
-
-                    <View style={styles.tagsContainer}>
-                        {campaign.tags.map(tag => (
-                            <View key={tag} style={styles.tag}>
-                                <Text style={styles.tagText}>#{tag}</Text>
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoItem}>
-                            <Feather name="calendar" size={16} color="#555" />
-                            <Text style={styles.infoText}>{campaign.deadline}</Text>
-                        </View>
-                        <View style={[styles.infoItem, styles.infoSeparator]}>
-                            <Feather name="users" size={16} color="#555" />
-                            <Text style={styles.infoText}>{campaign.participants.length} participants</Text>
-                        </View>
-                    </View>
-
-                    {campaign.goal && campaign.current !== undefined && (
-                        <View style={styles.progressContainer}>
-                            <View style={styles.progressTextRow}>
-                                <View>
-                                    <Text style={styles.progressText}>
-                                        {campaign.current.toLocaleString()} {campaign.unit}
-                                    </Text>
-                                    <Text style={styles.progressSubText}>
-                                        raised of {campaign.goal.toLocaleString()} {campaign.unit} goal
-                                    </Text>
-                                </View>
-                                <Text style={styles.progressPercent}>{progress.toFixed(0)}%</Text>
-                            </View>
-                            <CampaignProgress percent={progress} height={8} />
-                        </View>
-                    )}
-
-                    <View style={styles.actionsRow}>
-                        {primaryAction && (
-                            <CampaignActionButton
-                                icon={primaryAction.icon}
-                                label={primaryAction.text}
-                                onPress={primaryAction.onPress}
-                            />
-                        )}
-
-                        <TouchableOpacity style={styles.secondaryButton} onPress={handleShare}>
-                            <Feather name="share-2" size={16} color="#333" />
-                            <Text style={styles.secondaryButtonText}>Share</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.secondaryButton, isLiked && styles.secondaryButtonLiked]}
-                            onPress={handleLikeToggle}
-                        >
-                            <Feather name="heart" size={16} color={isLiked ? 'red' : '#333'} />
-                            <Text style={[styles.secondaryButtonText, isLiked && styles.secondaryButtonLikedText]}>
-                                {isLiked ? 'Liked' : 'Like'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View style={styles.tabsContainer}>
-                    <View style={styles.tabNavigation}>
-                        {TABS.map((tab) => {
-                            const isActive = activeTabId === tab.id;
-                            const label = tab.getBadgeCount
-                                ? `${tab.label} (${tab.getBadgeCount(campaign)})`
-                                : tab.label;
-
-                            return (
-                                <TouchableOpacity
-                                    key={tab.id}
-                                    style={[styles.tabButton, isActive && styles.tabButtonActive]}
-                                    onPress={() => setActiveTabId(tab.id)}
-                                >
-                                    <Text style={[styles.tabButtonText, isActive && styles.tabButtonTextActive]}>
-                                        {label}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                </View>
-            </ScrollView>
-
-            <View style={styles.tabContent}>
-                {activeTab?.renderContent(
-                    campaign,
-                    commentInputText,
-                    setCommentInputText,
-                    handlePostComment
                 )}
             </View>
+
+            <View style={styles.infoContainer}>
+                <View style={styles.typeTitle}>
+                    <Feather
+                        name={typeIcon}
+                        size={20}
+                        color="#3b82f6"
+                        style={styles.typeIcon}
+                    />
+                    <View>
+                        <Text style={styles.campaignType}>
+                            {campaign.type} Campaign
+                        </Text>
+                        <Text style={styles.campaignTitle}>{campaign.title}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.tagsContainer}>
+                    {campaign.tags.map(tag => (
+                        <View key={tag} style={styles.tag}>
+                            <Text style={styles.tagText}>#{tag}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.infoRow}>
+                    <View style={styles.infoItem}>
+                        <Feather name="calendar" size={16} color="#555" />
+                        <Text style={styles.infoText}>{campaign.deadline}</Text>
+                    </View>
+                    <View style={[styles.infoItem, styles.infoSeparator]}>
+                        <Feather name="users" size={16} color="#555" />
+                        <Text style={styles.infoText}>{campaign.participants.length} participants</Text>
+                    </View>
+                </View>
+
+                {campaign.goal && campaign.current !== undefined && (
+                    <View style={styles.progressContainer}>
+                        <View style={styles.progressTextRow}>
+                            <View>
+                                <Text style={styles.progressText}>
+                                    {campaign.current.toLocaleString()} {campaign.unit}
+                                </Text>
+                                <Text style={styles.progressSubText}>
+                                    raised of {campaign.goal.toLocaleString()} {campaign.unit} goal
+                                </Text>
+                            </View>
+                            <View><Text style={styles.progressPercent}>{progress.toFixed(0)}%</Text></View>
+                        </View>
+                        <CampaignProgress percent={progress} height={8} />
+                    </View>
+                )}
+
+                <View style={styles.actionsRow}>
+                    {primaryAction && (
+                        <CampaignActionButton
+                            icon={primaryAction.icon}
+                            label={primaryAction.text}
+                            onPress={primaryAction.onPress}
+                        />
+                    )}
+
+                    <TouchableOpacity style={styles.secondaryButton} onPress={handleShare}>
+                        <Feather name="share-2" size={16} color="#333" />
+                        <Text style={styles.secondaryButtonText}>Share</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.secondaryButton, isLiked && styles.secondaryButtonLiked]}
+                        onPress={handleLikeToggle}
+                    >
+                        <Feather name="heart" size={16} color={isLiked ? 'red' : '#333'} />
+                        <Text style={[styles.secondaryButtonText, isLiked && styles.secondaryButtonLikedText]}>
+                            {isLiked ? 'Liked' : 'Like'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <View style={styles.tabsContainer}>
+                <View style={styles.tabNavigation}>
+                    {TABS.map((tab) => {
+                        const isActive = activeTabId === tab.id;
+                        const label = tab.getBadgeCount
+                            ? `${tab.label} (${tab.getBadgeCount(campaign)})`
+                            : tab.label;
+
+                        return (
+                            <TouchableOpacity
+                                key={tab.id}
+                                style={[styles.tabButton, isActive && styles.tabButtonActive]}
+                                onPress={() => setActiveTabId(tab.id)}
+                            >
+                                <Text style={[styles.tabButtonText, isActive && styles.tabButtonTextActive]}>
+                                    {label}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            </View>
+        </View>
+    );
+
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+            {activeTab?.renderContent(
+                campaign,
+                commentInputText,
+                setCommentInputText,
+                handlePostComment,
+                renderHeader()
+            )}
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        // flex: 1,
         backgroundColor: '#f8f8f8',
     },
 
@@ -386,6 +386,7 @@ const styles = StyleSheet.create({
     // Tabs
     tabsContainer: {
         marginHorizontal: 16,
+        marginBottom: 16,
     },
     tabNavigation: {
         flexDirection: 'row',

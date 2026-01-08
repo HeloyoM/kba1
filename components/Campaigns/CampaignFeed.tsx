@@ -1,5 +1,5 @@
-import { getCampaignsList } from '@/api/campaigns/campaigns';
-import { CampaignType, ICampaign } from '@/interface/campaign.interface';
+import { getCampaignsList } from '../../api/campaigns/campaigns';
+import { CampaignType, ICampaign } from '../../interface/campaign.interface';
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -90,6 +90,7 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign }: CampaignFeedP
 
             <CampaignFeedSearchBar value={searchQuery} onChange={setSearchQuery} />
 
+            
             <CampaignFeedFilters
                 showFilters={showFilters}
                 onToggleFilters={() => setShowFilters(prev => !prev)}

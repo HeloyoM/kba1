@@ -14,7 +14,8 @@ export interface TabConfig {
         campaign: ICampaign,
         commentInputText: string,
         onCommentTextChange: (text: string) => void,
-        onPostComment: () => void
+        onPostComment: () => void,
+        header: React.ReactNode
     ) => React.ReactNode;
 }
 
@@ -22,10 +23,11 @@ export const TABS: TabConfig[] = [
     {
         id: 'about',
         label: 'About',
-        renderContent: (campaign) => (
+        renderContent: (campaign, _1, _2, _3, header) => (
             <AboutTabContent
                 description={campaign.fullDescription}
                 mediaGallery={campaign.mediaGallery}
+                header={header}
             />
         ),
     },
@@ -33,22 +35,23 @@ export const TABS: TabConfig[] = [
         id: 'participants',
         label: 'Participants',
         getBadgeCount: (campaign) => campaign.participants.length,
-        renderContent: (campaign) => (
-            <ParticipantsTabContent participants={campaign.participants} />
+        renderContent: (campaign, _1, _2, _3, header) => (
+            <ParticipantsTabContent participants={campaign.participants} header={header} />
         ),
     },
     {
         id: 'comments',
         label: 'Comments',
         getBadgeCount: (campaign) => campaign.comments.length,
-        renderContent: (campaign, commentInputText, onCommentTextChange, onPostComment) => (
+        renderContent: (campaign, commentInputText, onCommentTextChange, onPostComment, header) => (
             <CommentsTabContent
                 comments={campaign.comments}
                 commentInputText={commentInputText}
                 onCommentTextChange={onCommentTextChange}
                 onPostComment={onPostComment}
+                header={header}
             />
         ),
     },
-    
+
 ];
