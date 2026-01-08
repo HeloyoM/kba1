@@ -1,4 +1,4 @@
-import { IEvent } from "@/interface/events.interface";
+import { EventRSVPStatus, IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
 } from "@expo/vector-icons";
@@ -37,7 +37,7 @@ function ImageWithFallback({
     alt?: string;
 }) {
     const [error, setError] = useState(false);
-    const uri = !error && src ? { uri: src } : require("../assets/images/image-placeholder.jpg"); // add a local placeholder at this path
+    const uri = !error && src ? { uri: src } : require("../../assets/images/image-placeholder.jpg"); // add a local placeholder at this path
 
     return (
         <Image
@@ -51,13 +51,13 @@ function ImageWithFallback({
 }
 
 export function EventDetails({ event, onBack }: EventDetailsProps) {
-    const [rsvpStatus, setRsvpStatus] = useState<"joined" | "interested" | null>(
-        (event.userRSVP as "joined" | "interested" | null) ?? null
+    const [rsvpStatus, setRsvpStatus] = useState<EventRSVPStatus>(
+        (event.userRSVP as EventRSVPStatus) ?? null
     );
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [newComment, setNewComment] = useState("");
 
-    const handleRSVP = (status: "joined" | "interested") => {
+    const handleRSVP = (status: Exclude<EventRSVPStatus, null>) => {
         if (rsvpStatus === status) {
             setRsvpStatus(null);
             Toast.show({
@@ -161,9 +161,9 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                         )}
                     </View>
 
-                    <Text style={[styles.heroTitle, styles.textDark]}>
+                    <View><Text style={[styles.heroTitle, styles.textDark]}>
                         {event.title}
-                    </Text>
+                    </Text></View>
                 </View>
             </View>
 

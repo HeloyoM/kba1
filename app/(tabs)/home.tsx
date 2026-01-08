@@ -1,20 +1,13 @@
 
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import Card from '@/components/Card';
-import { colors } from '@/utils/colors';
-import { useAppUser } from '@/context/auth.context';
-import { Redirect } from 'expo-router';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { logout } from '@/api/auth/auth';
+import Menu from '@/components/Menu/Menu';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { logout } from '@/api/users/users';
+import { useAppUser } from '@/context/auth.context';
+import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
-
-const demo = [
-    { title: 'Welcome!', subtitle: 'Community feed and announcements', accent: colors.blue },
-    { title: 'New Event', subtitle: 'Shabbat dinner on Friday', accent: colors.pink },
-    { title: 'Member Spotlight', subtitle: 'Say hi to our new neighbors', accent: colors.yellow },
-    { title: 'Help Needed', subtitle: 'Volunteer for food delivery', accent: colors.purple }
-];
+import { Redirect } from 'expo-router';
 
 export default function Home() {
     const { user, loading } = useAppUser();
@@ -47,11 +40,8 @@ export default function Home() {
 
 
                 <View style={styles.cardsContainer}>
-                    {demo.map((d, i) => (
-                        <TouchableOpacity key={i} activeOpacity={0.85} style={styles.cardWrapper}>
-                            <Card index={i} title={d.title} subtitle={d.subtitle} accent={d.accent} />
-                        </TouchableOpacity>
-                    ))}
+                    <Menu />
+                    <Text>Hello Meir</Text>
                 </View>
 
 

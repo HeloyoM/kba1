@@ -1,54 +1,34 @@
-import { db, auth } from '../../config/firebase';
+import { auth } from '@/config/firebase';
 import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, getDoc, doc, getDocs, addDoc, serverTimestamp, query, where, setDoc, } from 'firebase/firestore';
 import {
     GoogleSignin,
     statusCodes,
     isSuccessResponse,
     isErrorWithCode,
     SignInResponse,
-    User
 } from '@react-native-google-signin/google-signin';
-import { isUserExist } from '../../api/auth/utiles';
+import { isUserExist } from './utiles';
+import IUser from '@/interface/user.interface';
+import { formatUser, insertUser } from './users';
 
-
-const getUsersList = async () => {
+const login = async (): Promise<IUser | undefined> => {
     try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            console.log(doc.data());
-        });
-
-        return querySnapshot
-    } catch (error) {
-        console.log({ error })
-    }
-}
-
-
-const login = async () => {
-    try {
-        await GoogleSignin.configure({
-            webClientId: "673592063163-crlnbboi32r854h4s4jullj2pqomedop.apps.googleusercontent.com",
-            offlineAccess: true,
-        });
-
-
         const response: SignInResponse = await GoogleSignin.signIn();
+
         if (isSuccessResponse(response)) {
-            console.log(response.data.user.email)
+
             const idToken = response.data.idToken;
 
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             await signInWithCredential(auth, googleCredential);
 
-            if (await isUserExist(response.data.user.email)) {
-                await insertUser(response.data.user)
+            const user = formatUser(response.data.user)
+            if (await isUserExist(user.email)) {
+                await insertUser(user);
             }
 
-            return response.data.user as unknown as User['user'];
+            return user;
         }
     } catch (error) {
         if (isErrorWithCode(error)) {
@@ -68,42 +48,15 @@ const login = async () => {
 
 const logout = async () => {
     try {
-        await GoogleSignin.configure({
-            webClientId: "673592063163-crlnbboi32r854h4s4jullj2pqomedop.apps.googleusercontent.com",
-            offlineAccess: true,
-        });
-
         await GoogleSignin.signOut();
     } catch (error) {
         console.log({ error })
     }
 }
 
-const insertUser = async (user: User['user']): Promise<void> => {
-    const timeStamp = serverTimestamp();
-
-    const newUser = {
-        id: user.id,
-        createdAt: timeStamp,
-        email: user.email,
-        first_name: user.name,
-        last_name: user.familyName,
-        isPaying: false,
-        last_login: timeStamp,
-        phone: '',
-        photoURL: user.photo,
-        role: 'user',
-        subscriptionExpires: new Date().getTime() + 1000000
-    };
-    await setDoc(doc(db, 'users', user.id), newUser)
-
-    // await addDoc(collection(db, 'users'), newUser);
-     
-}
 
 const siginWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
     try {
-        console.log('signing up...', credentials)
         signInWithEmailAndPassword(auth, credentials.email, credentials.password)
             .then((userCredential) => {
                 // Signed in 
@@ -122,10 +75,8 @@ const siginWithEmailPasswrodMethod = (credentials: { email: string, password: st
 
 const sigupWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
     try {
-        console.log('signing up...', credentials)
         createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
             .then((userCredential) => {
-                // Signed in 
                 const user = userCredential.user;
                 return user;
             })
@@ -155,7 +106,6 @@ const verifyEmail = () => {
 }
 
 export {
-    getUsersList,
     login,
     logout,
     sigupWithEmailPasswrodMethod,

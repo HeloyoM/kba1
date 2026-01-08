@@ -1,13 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import Toast from "react-native-toast-message";
-import { EventFeed } from '@/components/EventFeed';
-import { EventDetails } from '@/components/EventDetails';
-import EventCreation from '@/components/EventCreation';
+import { EventFeed } from '@/components/Events/EventFeed';
+import { EventDetails } from '@/components/Events/EventDetails';
+import EventCreation from '@/components/Events/EventCreation';
 import { IEvent } from '@/interface/events.interface';
-import { getEventsList, insertEvet } from '@/api/events/events';
 
 type ViewType = "feed" | "details" | "create";
 

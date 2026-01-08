@@ -1,12 +1,13 @@
 import { db } from '@/config/firebase';
 import { collection, getDocs, addDoc, } from 'firebase/firestore';
 import { IEvent } from '@/interface/events.interface';
+import { DBcollections } from '@/constants/DBcollections';
 
 const getEventsList = async () => {
     console.log(`fetching events lsit from DB...`)
     try {
 
-        const querySnapshot = await getDocs(collection(db, "events"));
+        const querySnapshot = await getDocs(collection(db, DBcollections.EVENTS));
 
         const events: IEvent[] = []
 
@@ -23,7 +24,7 @@ const getEventsList = async () => {
 
 const insertEvet = async (newEvent: Partial<IEvent>) => {
     try {
-        const result = await addDoc(collection(db, 'events'), newEvent);
+        const result = await addDoc(collection(db, DBcollections.EVENTS), newEvent);
         if (result.id) {
             console.log(`new events is inserted successfully, with the given id: ${result.id}`)
         }

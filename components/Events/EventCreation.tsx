@@ -8,7 +8,7 @@ import {
     Alert,
     StyleSheet,
 } from "react-native";
-import { IconSymbol } from "./ui/icon-symbol";
+import { IconSymbol } from "../ui/icon-symbol";
 import Toast from "react-native-toast-message";
 import { insertEvet } from "@/api/events/events";
 import { IEvent } from "@/interface/events.interface";

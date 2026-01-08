@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
-import { CampaignFeed } from '@/components/CampaignFeed';
-import { CampaignDetails } from '@/components/CampaignDetails';
+import { CampaignDetails } from '@/components/Campaigns/CampaignDetails';
+import { CampaignFeed } from '@/components/Campaigns/CampaignFeed';
+import { CampaignForm } from '@/components/Campaigns/CampaignForm';
 import { ICampaign } from '@/interface/campaign.interface';
-// import { CampaignForm } from '@/components/CampaignForm';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet } from 'react-native';
 
 type ViewType = 'feed' | 'details' | 'create' | 'edit';
 
@@ -54,13 +54,13 @@ export default function Community() {
                 />
             )}
 
-            {/* {(currentView === 'create' || currentView === 'edit') && (
+            {(currentView === 'create' || currentView === 'edit') && (
                 <CampaignForm
                     campaign={selectedCampaign}
-                    onSave={handleSaveCampaign}
+                    onSave={() => handleSaveCampaign(null as any)}
                     onCancel={handleBackToFeed}
                 />
-            )} */}
+            )}
         </SafeAreaView>
     );
 }

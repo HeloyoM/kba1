@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { ImageWithFallback } from './ImageWithFallback';
-import { Campaign } from '@/app/(tabs)/community';
 import { IconSymbol } from './ui/icon-symbol';
+import { ICampaign } from '@/interface/campaign.interface';
 
 interface FeaturedCarouselProps {
-    campaigns: Campaign[];
-    onViewCampaign: (campaign: Campaign) => void;
+    campaigns: ICampaign[];
+    onViewCampaign: (campaign: ICampaign) => void;
 }
-
+    
 export function FeaturedCarousel({ campaigns, onViewCampaign }: FeaturedCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
