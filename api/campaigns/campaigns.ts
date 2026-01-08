@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase';
 import { mockCampaigns } from '@/data/mock-campaigns';
 import { ICampaign } from '@/interface/campaign.interface';
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { DBcollections } from '../../constants/DBcollections';
 
 const getCampaignsList = async (): Promise<ICampaign[]> => {
@@ -45,8 +45,8 @@ const updateCampaign = async (id: string, data: Partial<ICampaign>): Promise<voi
 
 const deleteCampaign = async (id: string): Promise<void> => {
     try {
-        await deleteDoc(doc(db, DBcollections.CAMPAIGNS, id));
-        console.log("Campaign deleted successfully");
+        const deletedDoc = await deleteDoc(doc(db, DBcollections.CAMPAIGNS, id));
+        console.log({ deletedDoc });
     } catch (error) {
         console.error("Error deleting campaign: ", error);
         throw error;
@@ -77,3 +77,4 @@ const migrationFunc = async (): Promise<void> => {
 export {
     addCampaign, deleteCampaign, getCampaignsList, migrationFunc, updateCampaign
 };
+
