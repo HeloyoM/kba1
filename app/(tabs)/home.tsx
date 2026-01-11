@@ -1,13 +1,11 @@
-
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { logout } from '@/api/auth/auth';
-import Menu from '@/components/Menu/Menu';
+import { Redirect } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from '@/context/auth.context';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
-import { Redirect } from 'expo-router';
+import Menu from '@/components/Menu/Menu';
 
 export default function Home() {
     const { user, loading } = useAppUser();
@@ -31,17 +29,11 @@ export default function Home() {
                 <View style={styles.header}>
                     <Text style={styles.greeting}>Hello, {user.givenName} 👋</Text>
                     <Text style={styles.subtitle}>Here's what's happening today</Text>
-
-                    <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
-                        <IconSymbol color="#fff" size={20} name='door.french.open' />
-                        <Text style={styles.logoutText}>Logout</Text>
-                    </TouchableOpacity>
                 </View>
 
 
                 <View style={styles.cardsContainer}>
                     <Menu />
-                    <Text>Hello Meir</Text>
                 </View>
 
 

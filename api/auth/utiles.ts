@@ -1,10 +1,25 @@
-import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { DBcollections } from '@/constants/DBcollections';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
-export const isUserExist = async (email: string): Promise<boolean> => {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email.trim().toLocaleLowerCase()));
-    const querySnapshot = await getDocs(q);
+const usersRef = collection(db, DBcollections.USERS);
 
-    return querySnapshot.empty;
+const getUserByEmail = (email: string): Promise<any> => {
+    const emailAdd = email.trim().toLocaleLowerCase();
+    
+    const q = query(usersRef, where("email", "==", emailAdd));
+
+    return getDocs(q);
+}
+
+const userNotAssignedYet = async (email: string): Promise<boolean> => {
+    const user = await getUserByEmail(email);
+
+    return user.empty;
+}
+
+
+export {
+    userNotAssignedYet,
+    getUserByEmail
 }

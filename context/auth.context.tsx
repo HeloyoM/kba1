@@ -1,11 +1,13 @@
+import { logout as apiLogout } from '@/api/auth/auth';
 import IUser from '@/interface/user.interface';
-import { useState, createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 interface AppUserContextProps {
     user: IUser | null;
     setUser: (user: IUser) => void;
     loading: boolean;
     setLoading: (val: boolean) => void;
+    logout: () => void;
 }
 
 const AuthContext = createContext<AppUserContextProps | undefined>(undefined);
@@ -18,11 +20,17 @@ const AppUserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
         setUser(userData);
     }
 
+    const logout = async () => {
+        await apiLogout();
+        setUser(null);
+    }
+
     const defaultValue = {
         user,
         setUser: updateCurrentUser,
         loading,
-        setLoading
+        setLoading,
+        logout
     }
 
     return (

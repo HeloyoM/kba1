@@ -1,7 +1,8 @@
-import { deleteCampaign } from '@/api/campaigns/campaigns';
+import { addComment, deleteCampaign } from '@/api/campaigns/campaigns';
+import { useAppUser } from '@/context/auth.context';
 import { ICampaign } from '@/interface/campaign.interface';
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     SafeAreaView,
@@ -23,10 +24,16 @@ interface CampaignDetailsProps {
     onEdit: (campaign: ICampaign) => void;
 }
 
-export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsProps) {
+export function CampaignDetails({ campaign: initialCampaign, onBack, onEdit }: CampaignDetailsProps) {
+    const [campaign, setCampaign] = useState(initialCampaign);
     const [activeTabId, setActiveTabId] = useState<TabId>('about');
     const [commentInputText, setCommentInputText] = useState('');
     const [isLiked, setIsLiked] = useState(false);
+    const { user } = useAppUser();
+
+    useEffect(() => {
+        setCampaign(initialCampaign);
+    }, [initialCampaign]);
 
     const progress = calculateProgress(campaign.current, campaign.goal);
     const typeIcon = getTypeIcon(campaign.type);
@@ -71,9 +78,43 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
         ]);
     }
 
-    function handlePostComment() {
-        Alert.alert('Post Comment', `Posting comment: ${commentInputText}`);
+    async function handlePostComment() {
+        if (!user) {
+            Alert.alert("Sign In Required", "Please sign in to post a comment");
+            return;
+        }
+
+        if (!commentInputText.trim()) {
+            Alert.alert("Empty Comment", "Please enter a comment");
+            return;
+        }
+
+        const newComment = {
+            id: Date.now().toString(),
+            author: user.name || "Anonymous",
+            avatar: user.photoUrl || "https://ui-avatars.com/api/?name=Anonymous",
+            content: commentInputText,
+            timestamp: new Date().toISOString(),
+        };
+
+        const previousCampaign = campaign;
+
+        // Optimistic update
+        setCampaign(prev => ({
+            ...prev,
+            comments: [...(prev.comments || []), newComment]
+        }));
         setCommentInputText('');
+
+        try {
+            await addComment(campaign.id, newComment);
+        } catch (error) {
+            console.error(error);
+            // Revert state on error
+            setCampaign(previousCampaign);
+            setCommentInputText(newComment.content);
+            Alert.alert("Error", "Failed to post comment");
+        }
     }
 
     function getTypeIcon(type: string): React.ComponentProps<typeof Feather>['name'] {

@@ -79,6 +79,7 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign }: CampaignFeedP
         campaigns.filter((c: ICampaign) => c.urgent),
         [campaigns]);
 
+    console.log({ campaigns })
     return (
         <ScrollView
             style={styles.container}
@@ -90,7 +91,7 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign }: CampaignFeedP
 
             <CampaignFeedSearchBar value={searchQuery} onChange={setSearchQuery} />
 
-            
+
             <CampaignFeedFilters
                 showFilters={showFilters}
                 onToggleFilters={() => setShowFilters(prev => !prev)}

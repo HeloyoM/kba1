@@ -10,6 +10,13 @@ export type CampaignType = CampaignTypeEnum;
 
 export type CampaignStatus = 'active' | 'completed' | 'upcoming';
 
+export interface CampaignOrganizer {
+    id: string;
+    name: string;
+    avatar: string;
+    role: string;
+}
+
 export interface ICampaign {
     id: string;
     title: string;
@@ -18,11 +25,7 @@ export interface ICampaign {
     type: CampaignType;
     status: CampaignStatus;
     image: string;
-    organizer: {
-        name: string;
-        avatar: string;
-        role: string;
-    };
+    organizer: CampaignOrganizer;
     goal?: number;
     current?: number;
     unit?: string;

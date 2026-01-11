@@ -1,12 +1,20 @@
-import { useColorScheme, Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
-import { PersonalInfoSection } from "@/components/PersonalArea/PersonalInfoSection";
 import { AccountSettingsSection } from "@/components/AccountSettingsSection";
 import ActivityOverview from "@/components/ActivityOverview";
+import { PersonalInfoSection } from "@/components/PersonalArea/PersonalInfoSection";
+import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
 import SecuritySection from "@/components/SecuritySection";
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAppUser } from "@/context/auth.context";
+import { Redirect } from 'expo-router';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const Profile = () => {
     const colorScheme = useColorScheme();
+    const { logout, user } = useAppUser();
+
+    if (user === null) {
+        return <Redirect href="/auth" />;
+    }
 
     const theme = colorScheme === 'dark' ? darkStyles : lightStyles;
     return (
@@ -23,6 +31,10 @@ const Profile = () => {
                 <AccountSettingsSection />
                 <ActivityOverview />
                 <SecuritySection />
+                <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
+                    <IconSymbol color="#fff" size={20} name='door.french.open' />
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
@@ -53,6 +65,29 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingVertical: 20,
+    },
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ff5c5c',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        marginHorizontal: 20,
+        marginTop: 20,
+        marginBottom: 20,
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 3,
+    },
+    logoutText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 16,
+        marginLeft: 8,
     },
 });
 

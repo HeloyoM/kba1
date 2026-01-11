@@ -1,15 +1,15 @@
 import { auth } from '@/config/firebase';
-import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import IUser from '@/interface/user.interface';
 import {
     GoogleSignin,
-    statusCodes,
-    isSuccessResponse,
     isErrorWithCode,
+    isSuccessResponse,
     SignInResponse,
+    statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { isUserExist } from './utiles';
-import IUser from '@/interface/user.interface';
-import { formatUser, insertUser } from './users';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from "firebase/auth";
+import { formatAssignedUser, formatUser, insertUser } from './users';
+import { userNotAssignedYet } from './utiles';
 
 const login = async (): Promise<IUser | undefined> => {
     try {
@@ -18,18 +18,19 @@ const login = async (): Promise<IUser | undefined> => {
         if (isSuccessResponse(response)) {
 
             const idToken = response.data.idToken;
-
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             await signInWithCredential(auth, googleCredential);
+            console.log(response.data.user)
 
             const user = formatUser(response.data.user)
-            if (await isUserExist(user.email)) {
+            if (await userNotAssignedYet(user.email)) {
                 await insertUser(user);
             }
 
-            return user;
+            return formatAssignedUser(response.data.user);
         }
+
     } catch (error) {
         if (isErrorWithCode(error)) {
             switch (error.code) {
@@ -107,7 +108,6 @@ const verifyEmail = () => {
 
 export {
     login,
-    logout,
-    sigupWithEmailPasswrodMethod,
-    siginWithEmailPasswrodMethod
-} 
+    logout, siginWithEmailPasswrodMethod, sigupWithEmailPasswrodMethod
+};
+

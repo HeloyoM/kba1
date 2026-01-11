@@ -1,3 +1,4 @@
+import { useAppUser } from "@/context/auth.context";
 import { Feather } from "@expo/vector-icons";
 import React from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
@@ -24,6 +25,7 @@ interface CampaignHeaderProps {
 }
 
 export function CampaignHeader({ onBack, onEdit, onDelete }: CampaignHeaderProps) {
+    const { user } = useAppUser()
     return (
         <View style={styles.header}>
             <HeaderButton
@@ -32,17 +34,17 @@ export function CampaignHeader({ onBack, onEdit, onDelete }: CampaignHeaderProps
                 onPress={onBack}
             />
             <View style={styles.actions}>
-                <HeaderButton
+                {user?.role === "admin" && <HeaderButton
                     icon="edit"
                     onPress={onEdit}
                     style={styles.iconButton}
-                />
-                <HeaderButton
+                />}
+                {user?.role === "admin" && <HeaderButton
                     icon="trash-2"
                     color="red"
                     onPress={onDelete}
                     style={styles.iconButton}
-                />
+                />}
             </View>
         </View>
     );

@@ -19,7 +19,7 @@ const LoginForm = () => {
         setLoading(true);
         try {
             const data = await login();
-
+            console.log({ data })
             if (data !== null) {
                 setUser(data as IUser);
 
