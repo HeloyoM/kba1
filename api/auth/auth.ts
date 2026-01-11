@@ -21,7 +21,6 @@ const login = async (): Promise<IUser | undefined> => {
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             await signInWithCredential(auth, googleCredential);
-            console.log(response.data.user)
 
             const user = formatUser(response.data.user)
             if (await userNotAssignedYet(user.email)) {

@@ -45,7 +45,7 @@ const getCampaignsList = async (): Promise<ICampaign[]> => {
 const addCampaign = async (campaign: Omit<ICampaign, 'id'>): Promise<ICampaign> => {
     try {
         const docRef = await addDoc(campaignsRef, campaign);
-        console.log("Document written with ID: ", docRef.id);
+
         return { id: docRef.id, ...campaign };
     } catch (error) {
         console.error("Error adding campaign: ", error);
@@ -70,7 +70,6 @@ const addComment = async (campaignId: string, comment: any): Promise<void> => {
         await updateDoc(campaignRef, {
             comments: arrayUnion(comment)
         });
-        console.log("Comment added successfully");
     } catch (error) {
         console.error("Error adding comment: ", error);
         throw error;
@@ -79,8 +78,7 @@ const addComment = async (campaignId: string, comment: any): Promise<void> => {
 
 const deleteCampaign = async (id: string): Promise<void> => {
     try {
-        const deletedDoc = await deleteDoc(doc(db, DBcollections.CAMPAIGNS, id));
-        console.log({ deletedDoc });
+        await deleteDoc(doc(db, DBcollections.CAMPAIGNS, id));
     } catch (error) {
         console.error("Error deleting campaign: ", error);
         throw error;

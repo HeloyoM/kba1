@@ -14,4 +14,6 @@ export default interface IUser {
     role: string;
     subscriptionExpires: number;
     uid?: string;
+    location?: string;
+    birthday?: string;
 }

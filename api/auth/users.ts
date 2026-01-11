@@ -2,7 +2,7 @@ import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import IUser from '@/interface/user.interface';
 import { User } from '@react-native-google-signin/google-signin';
-import { collection, doc, getDocs, query, where, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 
 const getUsersList = async (): Promise<IUser[] | undefined> => {
     try {
@@ -24,6 +24,13 @@ const insertUser = async (user: IUser): Promise<void> => {
     await setDoc(doc(db, DBcollections.USERS, user.id), user)
 }
 
+const updateUser = async (user: Partial<IUser>): Promise<void> => {
+    if (!user.id) throw new Error("User ID is required to update user");
+
+    await setDoc(doc(db, DBcollections.USERS, user.uid!), user, { merge: true });
+}
+
+
 const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined> => {
     const timeStamp = serverTimestamp();
 
@@ -32,6 +39,7 @@ const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined
 
     if (!querySnapshot.empty) {
         const userInfo = querySnapshot.docs[0].data();
+        console.log({ userInfo })
         const formattedUser: IUser = {
             id: userInfo.id,
             createdAt: userInfo.createdAt,
@@ -46,6 +54,8 @@ const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined
             role: userInfo.role,
             photoUrl: userInfo.photoUrl,
             subscriptionExpires: userInfo.subscriptionExpires,
+            birthday: userInfo.birthday || '',
+            location: userInfo.location || '',
         };
         return formattedUser
     } else {
@@ -65,11 +75,13 @@ const formatUser = (user: User['user'], uid?: string): IUser => {
         givenName: `${user.name} ${user.familyName}`,
         uid: uid,
         isPaying: false,
-        last_login: timeStamp, // TODO: change this to current time
-        phone: '', // TODO: change this to current phone
-        role: 'user', // TODO: change this to current role
-        photoUrl: user.photo, // TODO: change this to current photo
-        subscriptionExpires: new Date().getTime() + 1000000, // TODO: change this to current subscription expires
+        last_login: timeStamp,
+        phone: '',
+        role: 'user',
+        photoUrl: user.photo,
+        subscriptionExpires: new Date().getTime() + 1000000,
+        birthday: '',
+        location: '',
     };
 
     return formattedUser
@@ -77,9 +89,8 @@ const formatUser = (user: User['user'], uid?: string): IUser => {
 
 
 export {
-    formatUser,
-    formatAssignedUser,
-    getUsersList,
-    insertUser
+    formatAssignedUser, formatUser, getUsersList,
+    insertUser,
+    updateUser
 };
 
