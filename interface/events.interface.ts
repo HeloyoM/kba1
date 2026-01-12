@@ -1,9 +1,11 @@
+import { Timestamp } from "firebase/firestore";
+
 export type EventRSVPStatus = "joined" | "interested" | null;
 
 export type IEvent = {
     id: string;
     title: string;
-    date: Date;
+    date: Timestamp;
     time: string;
     location: string;
     isOnline: boolean;

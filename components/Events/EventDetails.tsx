@@ -1,7 +1,12 @@
+import { addEventComment } from "@/api/events/events";
+import { useAppUser } from "@/context/auth.context";
 import { EventRSVPStatus, IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
 } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import {
     Alert,
@@ -18,7 +23,7 @@ import {
     View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-
+import InfoRow from "./InfoRow";
 
 interface EventDetailsProps {
     event: IEvent;
@@ -56,6 +61,10 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     );
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [newComment, setNewComment] = useState("");
+    const [comments, setComments] = useState<IEvent["comments"]>(event.comments || []);
+    const { user: currentUser } = useAppUser();
+
+    dayjs.extend(relativeTime);
 
     const handleRSVP = (status: Exclude<EventRSVPStatus, null>) => {
         if (rsvpStatus === status) {
@@ -97,20 +106,43 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
         }
     };
 
-    const submitComment = () => {
-        if (newComment.trim()) {
-            // In a real app you'd send to backend and update state
-            Toast.show({ type: "success", text1: "Comment posted!" });
-            setNewComment("");
-        } else {
+    const submitComment = async () => {
+        if (!newComment.trim()) {
             Toast.show({ type: "info", text1: "Please enter a comment first" });
+            return;
+        }
+
+        if (!currentUser) {
+            Toast.show({ type: "error", text1: "You must be logged in to comment" });
+            return;
+        }
+
+        const commentObj = {
+            user: currentUser.name || currentUser.email || "Anonymous",
+            avatar: currentUser.photoUrl || "",
+            comment: newComment.trim(),
+            time: dayjs().fromNow(),
+        };
+
+        try {
+            // Optimistic update
+            setComments((prev) => [...prev, commentObj]);
+            setNewComment("");
+
+            await addEventComment(event.id, commentObj);
+            Toast.show({ type: "success", text1: "Comment posted!" });
+        } catch (error) {
+            // Rollback optimistic update if needed, but for now just show error
+            Toast.show({ type: "error", text1: "Failed to post comment" });
+            console.error("submitComment error:", error);
         }
     };
 
     const openMap = async () => {
         if (!event.isOnline && event.location) {
-            const url = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
-            const supported = await Linking.canOpenURL(url);
+            const url: string = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
+            const supported: boolean = await Linking.canOpenURL(url);
+
             if (supported) {
                 await Linking.openURL(url);
             } else {
@@ -119,8 +151,8 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
         }
     };
 
-    const formatFullDate = (d: Date | string) => {
-        const date = new Date(d);
+    const formatFullDate = (d: Timestamp) => {
+        const date = d.toDate();
         return date.toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
@@ -133,108 +165,95 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     const photosToShow = showAllPhotos ? event.pastPhotos : event.pastPhotos.slice(0, 6);
 
     return (
-        <ScrollView
-            style={[styles.container, styles.containerLight]}
-            contentContainerStyle={styles.contentContainer}
-        >
-            {/* Header with back button */}
-            <View style={styles.headerRow}>
-                <TouchableOpacity onPress={onBack} style={styles.iconButton}>
-                    <Icon name="chevron-left" size={20} color={"#111"} />
-                </TouchableOpacity>
-                <View style={styles.headerSpacer} />
-            </View>
-
-            {/* Hero image */}
-            <View style={styles.heroWrapper}>
-                <ImageWithFallback src={event.coverImage} alt={event.title} style={styles.heroImage} />
-                <View style={styles.heroOverlay} />
-                <View style={styles.heroTextWrap}>
-                    <View style={styles.categoryRow}>
-                        <View style={styles.categoryBadge}>
-                            <Text style={styles.categoryBadgeText}>{event.category}</Text>
-                        </View>
-                        {event.trending && (
-                            <View style={styles.trendingBadge}>
-                                <Text style={styles.trendingBadgeText}>🔥 Trending</Text>
-                            </View>
-                        )}
-                    </View>
-
-                    <View><Text style={[styles.heroTitle, styles.textDark]}>
-                        {event.title}
-                    </Text></View>
+        <>
+            <ScrollView
+                style={[styles.container, styles.containerLight]}
+                contentContainerStyle={styles.contentContainer}
+            >
+                <View style={styles.headerRow}>
+                    <TouchableOpacity onPress={onBack} style={styles.iconButton}>
+                        <Icon name="chevron-left" size={20} color={"#111"} />
+                    </TouchableOpacity>
+                    <View style={styles.headerSpacer} />
                 </View>
-            </View>
 
-            {/* Action Buttons */}
-            <View style={styles.actionsGrid}>
-                <TouchableOpacity
-                    onPress={() => handleRSVP("joined")}
-                    style={[
-                        styles.actionButton,
-                        rsvpStatus === "joined" ? styles.actionPrimaryGreen : styles.actionNeutral,
-                    ]}
-                >
-                    <Icon name="check-circle" size={18} color={rsvpStatus === "joined" ? "#fff" : "#333"} />
-                    <Text style={[styles.actionText, rsvpStatus === "joined" ? styles.actionTextPrimary : null]}>
-                        {rsvpStatus === "joined" ? "Joined" : "Join"}
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => handleRSVP("interested")}
-                    style={[
-                        styles.actionButton,
-                        rsvpStatus === "interested" ? styles.actionPrimaryBlue : styles.actionNeutral,
-                    ]}
-                >
-                    <Icon name="heart" size={18} color={rsvpStatus === "interested" ? "#fff" : "#333"} />
-                    <Text style={[styles.actionText, rsvpStatus === "interested" ? styles.actionTextPrimary : null]}>
-                        {rsvpStatus === "interested" ? "Interested" : "Interest"}
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={shareEvent} style={[styles.actionButton, styles.actionNeutral]}>
-                    <Icon name="share-2" size={18} color="#333" />
-                    <Text style={styles.actionText}>Share</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={addToCalendar} style={[styles.actionButton, styles.actionNeutral]}>
-                    <Icon name="download" size={18} color="#333" />
-                    <Text style={styles.actionText}>Calendar</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Main / Sidebar layout is converted into vertical stacking for mobile */}
-            <View style={styles.section}>
-                {/* Event Info */}
-                <View style={[styles.card, styles.cardLight]}>
-                    <Text style={[styles.sectionTitle, styles.textDark]}>Event Details</Text>
-
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoIconWrap}>
-                            <Icon name="clock" size={18} color="#7c3aed" />
+                <View style={styles.heroWrapper}>
+                    <ImageWithFallback src={event.coverImage} alt={event.title} style={styles.heroImage} />
+                    <View style={styles.heroOverlay} />
+                    <View style={styles.heroTextWrap}>
+                        <View style={styles.categoryRow}>
+                            <View style={styles.categoryBadge}>
+                                <Text style={styles.categoryBadgeText}>{event.category}</Text>
+                            </View>
+                            {event.trending && (
+                                <View style={styles.trendingBadge}>
+                                    <Text style={styles.trendingBadgeText}>🔥 Trending</Text>
+                                </View>
+                            )}
                         </View>
-                        <View style={styles.infoContent}>
-                            <Text style={styles.infoLabel}>Date & Time</Text>
-                            <Text style={[styles.infoPrimary, styles.textDark]}>
-                                {formatFullDate(event.date)}
-                            </Text>
-                            <Text style={styles.infoSecondary}>{event.time}</Text>
-                        </View>
+
+                        <View><Text style={[styles.heroTitle, styles.textDark]}>
+                            {event.title}
+                        </Text></View>
                     </View>
+                </View>
 
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoIconWrap}>
-                            <Icon name="map-pin" size={18} color="#7c3aed" />
-                        </View>
-                        <View style={styles.infoContent}>
-                            <Text style={styles.infoLabel}>Location</Text>
-                            <Text style={[styles.infoPrimary, styles.textDark]}>
-                                {event.isOnline ? "Online Event" : event.location}
-                            </Text>
+                <View style={styles.actionsGrid}>
+                    <TouchableOpacity
+                        onPress={() => handleRSVP("joined")}
+                        style={[
+                            styles.actionButton,
+                            rsvpStatus === "joined" ? styles.actionPrimaryGreen : styles.actionNeutral,
+                        ]}
+                    >
+                        <Icon name="check-circle" size={18} color={rsvpStatus === "joined" ? "#fff" : "#333"} />
+                        <Text style={[styles.actionText, rsvpStatus === "joined" ? styles.actionTextPrimary : null]}>
+                            {rsvpStatus === "joined" ? "Joined" : "Join"}
+                        </Text>
+                    </TouchableOpacity>
 
+                    <TouchableOpacity
+                        onPress={() => handleRSVP("interested")}
+                        style={[
+                            styles.actionButton,
+                            rsvpStatus === "interested" ? styles.actionPrimaryBlue : styles.actionNeutral,
+                        ]}
+                    >
+                        <Icon name="heart" size={18} color={rsvpStatus === "interested" ? "#fff" : "#333"} />
+                        <Text style={[styles.actionText, rsvpStatus === "interested" ? styles.actionTextPrimary : null]}>
+                            {rsvpStatus === "interested" ? "Interested" : "Interest"}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={shareEvent} style={[styles.actionButton, styles.actionNeutral]}>
+                        <Icon name="share-2" size={18} color="#333" />
+                        <Text style={styles.actionText}>Share</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={addToCalendar} style={[styles.actionButton, styles.actionNeutral]}>
+                        <Icon name="download" size={18} color="#333" />
+                        <Text style={styles.actionText}>Calendar</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.section}>
+
+                    <View style={[styles.card, styles.cardLight]}>
+
+                        <Text style={[styles.sectionTitle, styles.textDark]}>Event Details</Text>
+
+                        <InfoRow
+                            icon="clock"
+                            label="Date & Time"
+                            primary={formatFullDate(event.date)}
+                            secondary={event.time}
+                        />
+
+                        <InfoRow
+                            icon="map-pin"
+                            label="Location"
+                            primary={event.isOnline ? "Online Event" : event.location}
+                        >
                             {!event.isOnline && (
                                 <TouchableOpacity onPress={openMap}>
                                     <View style={styles.mapLinkRow}>
@@ -243,172 +262,157 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                                     </View>
                                 </TouchableOpacity>
                             )}
-                        </View>
-                    </View>
+                        </InfoRow>
 
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoIconWrap}>
-                            <Icon name="users" size={18} color="#7c3aed" />
-                        </View>
-                        <View style={styles.infoContent}>
-                            <Text style={styles.infoLabel}>Attendance</Text>
-                            <Text style={[styles.infoPrimary, styles.textDark]}>
-                                {event.attendees} {event.capacity ? `/ ${event.capacity}` : ""} people going
-                            </Text>
-                            <Text style={styles.infoSecondary}>{event.interested} interested</Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* About */}
-                <View style={[styles.card, styles.cardLight]}>
-                    <Text style={[styles.sectionTitle, styles.textDark]}>About This Event</Text>
-                    <Text style={[styles.paragraph, styles.textMutedLight]}>
-                        {event.fullDescription}
-                    </Text>
-                </View>
-
-                {/* Schedule */}
-                <View style={[styles.card, styles.cardLight]}>
-                    <Text style={[styles.sectionTitle, styles.textDark]}>Event Schedule</Text>
-                    <View style={styles.scheduleWrap}>
-                        {event.schedule.map((item, idx) => (
-                            <View key={idx} style={styles.scheduleRow}>
-                                <View style={styles.scheduleMarkerColumn}>
-                                    <View style={styles.scheduleDot} />
-                                    {idx < event.schedule.length - 1 && <View style={styles.scheduleLine} />}
-                                </View>
-                                <View style={styles.scheduleContent}>
-                                    <Text style={styles.scheduleTime}>{item.time}</Text>
-                                    <Text style={[styles.scheduleActivity, styles.textDark]}>
-                                        {item.activity}
-                                    </Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                </View>
-
-                {/* Photos Gallery */}
-                {event.pastPhotos.length > 0 && (
-                    <View style={[styles.card, styles.cardLight]}>
-                        <View style={styles.photosHeaderRow}>
-                            <Text style={[styles.sectionTitle, styles.textDark]}>Photos from Past Events</Text>
-                            <TouchableOpacity onPress={() => setShowAllPhotos(!showAllPhotos)}>
-                                <Text style={styles.viewAllText}>{showAllPhotos ? "Show less" : "View all"}</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <FlatList
-                            data={photosToShow}
-                            keyExtractor={(_, i) => `${event.id}-photo-${i}`}
-                            numColumns={3}
-                            scrollEnabled={false}
-                            renderItem={({ item }) => (
-                                <View style={styles.photoTile}>
-                                    <ImageWithFallback src={item} alt="event photo" style={styles.photoImage} />
-                                </View>
-                            )}
+                        <InfoRow
+                            icon="users"
+                            label="Attendance"
+                            primary={`${event.attendees} ${event.capacity ? `/ ${event.capacity}` : ""} people going`}
+                            secondary={`${event.interested} interested`}
                         />
                     </View>
-                )}
 
-                {/* Comments Section */}
-                <View style={[styles.card, styles.cardLight]}>
-                    <Text style={[styles.sectionTitle, styles.textDark]}>Discussion</Text>
 
-                    <TextInput
-                        placeholder="Share your thoughts or questions..."
-                        placeholderTextColor={"#888"}
-                        value={newComment}
-                        onChangeText={setNewComment}
-                        multiline
-                        style={[styles.textArea, styles.inputLight]}
-                    />
-                    <TouchableOpacity onPress={submitComment} style={styles.postButton}>
-                        <Text style={styles.postButtonText}>Post Comment</Text>
-                    </TouchableOpacity>
+                    <View style={[styles.card, styles.cardLight]}>
+                        <Text style={[styles.sectionTitle, styles.textDark]}>About This Event</Text>
+                        <Text style={[styles.paragraph, styles.textMutedLight]}>
+                            {event.fullDescription}
+                        </Text>
+                    </View>
 
-                    <View style={styles.commentsList}>
-                        {event.comments.length === 0 ? (
-                            <Text style={styles.noCommentsText}>No comments yet. Be the first to share your thoughts!</Text>
-                        ) : (
-                            event.comments.map((comment, idx) => (
-                                <View key={idx} style={styles.commentRow}>
-                                    <ImageWithFallback src={comment.avatar} alt={comment.user} style={styles.commentAvatar} />
-                                    <View style={styles.commentContent}>
-                                        <View style={styles.commentHeader}>
-                                            <Text style={[styles.commentUser, styles.textDark]}>{comment.user}</Text>
-                                            <Text style={styles.commentTime}>{comment.time}</Text>
-                                        </View>
-                                        <Text style={[styles.commentText, styles.textMutedLight]}>
-                                            {comment.comment}
+                    <View style={[styles.card, styles.cardLight]}>
+                        <Text style={[styles.sectionTitle, styles.textDark]}>Event Schedule</Text>
+                        <View style={styles.scheduleWrap}>
+                            {event.schedule.map((item, index) => (
+                                <View key={index} style={styles.scheduleRow}>
+                                    <View style={styles.scheduleMarkerColumn}>
+                                        <View style={styles.scheduleDot} />
+                                        {index < event.schedule.length - 1 && <View style={styles.scheduleLine} />}
+                                    </View>
+                                    <View style={styles.scheduleContent}>
+                                        <Text style={styles.scheduleTime}>{item.time}</Text>
+                                        <Text style={[styles.scheduleActivity, styles.textDark]}>
+                                            {item.activity}
                                         </Text>
                                     </View>
                                 </View>
-                            ))
+                            ))}
+                        </View>
+                    </View>
+
+                    {event.pastPhotos.length > 0 && (
+                        <View style={[styles.card, styles.cardLight]}>
+                            <View style={styles.photosHeaderRow}>
+                                <Text style={[styles.sectionTitle, styles.textDark]}>Photos from Past Events</Text>
+                                <TouchableOpacity onPress={() => setShowAllPhotos(!showAllPhotos)}>
+                                    <Text style={styles.viewAllText}>{showAllPhotos ? "Show less" : "View all"}</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <FlatList
+                                data={photosToShow}
+                                keyExtractor={(_, i) => `${event.id}-photo-${i}`}
+                                numColumns={3}
+                                scrollEnabled={false}
+                                renderItem={({ item }) => (
+                                    <View style={styles.photoTile}>
+                                        <ImageWithFallback src={item} alt="event photo" style={styles.photoImage} />
+                                    </View>
+                                )}
+                            />
+                        </View>
+                    )}
+
+                    <View style={[styles.card, styles.cardLight]}>
+                        <Text style={[styles.sectionTitle, styles.textDark]}>Discussion</Text>
+
+                        <TextInput
+                            placeholder="Share your thoughts or questions..."
+                            placeholderTextColor={"#888"}
+                            value={newComment}
+                            onChangeText={setNewComment}
+                            multiline
+                            style={[styles.textArea, styles.inputLight]}
+                        />
+                        <TouchableOpacity onPress={submitComment} style={styles.postButton}>
+                            <Text style={styles.postButtonText}>Post Comment</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.commentsList}>
+                            {comments.length === 0 ? (
+                                <Text style={styles.noCommentsText}>No comments yet. Be the first to share your thoughts!</Text>
+                            ) : (
+                                comments.map((comment, idx) => (
+                                    <View key={idx} style={styles.commentRow}>
+                                        <ImageWithFallback src={comment.avatar} alt={comment.user} style={styles.commentAvatar} />
+                                        <View style={styles.commentContent}>
+                                            <View style={styles.commentHeader}>
+                                                <Text style={[styles.commentUser, styles.textDark]}>{comment.user}</Text>
+                                                <Text style={styles.commentTime}>{comment.time}</Text>
+                                            </View>
+                                            <Text style={[styles.commentText, styles.textMutedLight]}>
+                                                {comment.comment}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                ))
+                            )}
+                        </View>
+                    </View>
+
+                    <View style={styles.sidebarStack}>
+                        <View style={[styles.card, styles.cardLight]}>
+                            <Text style={[styles.sectionTitle, styles.textDark]}>Hosted By</Text>
+                            <View style={styles.organizerRow}>
+                                <ImageWithFallback src={event.organizer.avatar} alt={event.organizer.name} style={styles.organizerAvatar} />
+                                <View style={styles.organizerInfo}>
+                                    <Text style={[styles.organizerName, styles.textDark]}>{event.organizer.name}</Text>
+                                    <Text style={styles.organizerSubtitle}>Event Organizer</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                onPress={() => Linking.openURL(`mailto:${event.organizer.contact}`)}
+                                style={[styles.contactButton, styles.contactButtonLight]}
+                            >
+                                <Icon name="mail" size={16} color={"#111"} />
+                                <Text style={[styles.contactButtonText, styles.textDark]}> Contact Organizer</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={[styles.card, styles.cardLight]}>
+                            <Text style={[styles.sectionTitle, styles.textDark]}>Attendees ({event.attendees})</Text>
+                            <View style={styles.attendeesRow}>
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <View key={i} style={styles.attendeeAvatarPlaceholder} />
+                                ))}
+                                {event.attendees > 5 && (
+                                    <View style={styles.attendeeMore}>
+                                        <Text style={styles.attendeeMoreText}>+{event.attendees - 5}</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <TouchableOpacity>
+                                <Text style={styles.viewAllAttendees}>View all attendees</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {event.capacity && event.attendees / event.capacity > 0.8 && (
+                            <View style={styles.capacityWarning}>
+                                <Text style={styles.capacityWarningTitle}>⚠️ Limited Spots</Text>
+                                <Text style={styles.capacityWarningText}>
+                                    Only {event.capacity - event.attendees} spots remaining! Register soon to secure your place.
+                                </Text>
+                            </View>
                         )}
                     </View>
                 </View>
 
-                {/* Sidebar content (stacked for mobile) */}
-                <View style={styles.sidebarStack}>
-                    {/* Organizer Card */}
-                    <View style={[styles.card, styles.cardLight]}>
-                        <Text style={[styles.sectionTitle, styles.textDark]}>Hosted By</Text>
-                        <View style={styles.organizerRow}>
-                            <ImageWithFallback src={event.organizer.avatar} alt={event.organizer.name} style={styles.organizerAvatar} />
-                            <View style={styles.organizerInfo}>
-                                <Text style={[styles.organizerName, styles.textDark]}>{event.organizer.name}</Text>
-                                <Text style={styles.organizerSubtitle}>Event Organizer</Text>
-                            </View>
-                        </View>
-
-                        <TouchableOpacity
-                            onPress={() => Linking.openURL(`mailto:${event.organizer.contact}`)}
-                            style={[styles.contactButton, styles.contactButtonLight]}
-                        >
-                            <Icon name="mail" size={16} color={"#111"} />
-                            <Text style={[styles.contactButtonText, styles.textDark]}> Contact Organizer</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Attendees */}
-                    <View style={[styles.card, styles.cardLight]}>
-                        <Text style={[styles.sectionTitle, styles.textDark]}>Attendees ({event.attendees})</Text>
-                        <View style={styles.attendeesRow}>
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <View key={i} style={styles.attendeeAvatarPlaceholder} />
-                            ))}
-                            {event.attendees > 5 && (
-                                <View style={styles.attendeeMore}>
-                                    <Text style={styles.attendeeMoreText}>+{event.attendees - 5}</Text>
-                                </View>
-                            )}
-                        </View>
-                        <TouchableOpacity>
-                            <Text style={styles.viewAllAttendees}>View all attendees</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Capacity Warning */}
-                    {event.capacity && event.attendees / event.capacity > 0.8 && (
-                        <View style={styles.capacityWarning}>
-                            <Text style={styles.capacityWarningTitle}>⚠️ Limited Spots</Text>
-                            <Text style={styles.capacityWarningText}>
-                                Only {event.capacity - event.attendees} spots remaining! Register soon to secure your place.
-                            </Text>
-                        </View>
-                    )}
-                </View>
-            </View>
-
+            </ScrollView>
             <Toast />
-        </ScrollView>
+        </>
     );
 }
-
-/* ----------------------------- Styles ------------------------------ */
 
 const { width } = Dimensions.get("window");
 const photoTileSize = Math.floor((width - 48) / 3); // 16 padding each side + gaps
