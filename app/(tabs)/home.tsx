@@ -1,7 +1,6 @@
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Redirect } from 'expo-router';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from '@/context/auth.context';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
@@ -22,6 +21,10 @@ export default function Home() {
             elementColors={{ trackColor: '#cccccc' }}
         />
     )
+
+    if (user.givenName == undefined) {
+        return <Redirect href="/profile" />;
+    }
 
     return (
         <SafeAreaView style={styles.safe}>

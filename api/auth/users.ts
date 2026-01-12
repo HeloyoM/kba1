@@ -1,7 +1,6 @@
 import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import IUser from '@/interface/user.interface';
-import { User } from '@react-native-google-signin/google-signin';
 import { collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 
 const getUsersList = async (): Promise<IUser[] | undefined> => {
@@ -25,13 +24,13 @@ const insertUser = async (user: IUser): Promise<void> => {
 }
 
 const updateUser = async (user: Partial<IUser>): Promise<void> => {
-    if (!user.id) throw new Error("User ID is required to update user");
+    if (!user.uid) throw new Error("User UID is required to update user");
 
-    await setDoc(doc(db, DBcollections.USERS, user.uid!), user, { merge: true });
+    await setDoc(doc(db, DBcollections.USERS, user.uid), user, { merge: true });
 }
 
 
-const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined> => {
+const formatAssignedUser = async (user: { email: string; name?: string | null; familyName?: string | null }): Promise<IUser | undefined> => {
     const timeStamp = serverTimestamp();
 
     const q = query(collection(db, DBcollections.USERS), where("email", "==", user.email));
@@ -39,14 +38,16 @@ const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined
 
     if (!querySnapshot.empty) {
         const userInfo = querySnapshot.docs[0].data();
-        console.log({ userInfo })
+        const firstName = user.name || userInfo.name || '';
+        const lastName = user.familyName || userInfo.familyName || '';
+
         const formattedUser: IUser = {
             id: userInfo.id,
             createdAt: userInfo.createdAt,
             email: userInfo.email,
             name: userInfo.name,
             familyName: userInfo.familyName,
-            givenName: `${user.name} ${user.familyName}`,
+            givenName: `${firstName} ${lastName}`.trim(),
             uid: userInfo.uid,
             isPaying: userInfo.isPaying,
             last_login: timeStamp,
@@ -63,27 +64,27 @@ const formatAssignedUser = async (user: User['user']): Promise<IUser | undefined
     }
 }
 
-const formatUser = (user: User['user'], uid?: string): IUser => {
+const formatUser = (user: { id: string; email: string; name?: string | null; familyName?: string | null; photo?: string | null }, uid?: string): IUser => {
     const timeStamp = serverTimestamp();
 
     const formattedUser: IUser = {
         id: user.id,
         createdAt: timeStamp,
         email: user.email,
-        name: user.name,
-        familyName: user.familyName,
-        givenName: `${user.name} ${user.familyName}`,
+        name: user.name || '',
+        familyName: user.familyName || '',
+        givenName: `${user.name || ''} ${user.familyName || ''}`.trim(),
         uid: uid,
         isPaying: false,
         last_login: timeStamp,
         phone: '',
         role: 'user',
-        photoUrl: user.photo,
+        photoUrl: user.photo || null,
         subscriptionExpires: new Date().getTime() + 1000000,
         birthday: '',
         location: '',
     };
-
+    console.log({ formattedUser })
     return formattedUser
 }
 

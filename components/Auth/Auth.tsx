@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import LoginForm from './LoginForm';
-import SignupForm from './SignupForm';
+import { Pressable, Text, useColorScheme, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     withTiming,
 } from 'react-native-reanimated';
+import { styles } from './Auth.styles';
+import LoginForm from './LoginForm';
+import SignupForm from './SignupForm';
 
 const COLLAPSED_HEIGHT = 0;
-const EXPANDED_HEIGHT = 300;
+const EXPANDED_HEIGHT = 410;
 const TIMING_CONFIG = { duration: 500 };
 
 const Auth = () => {
@@ -21,30 +22,22 @@ const Auth = () => {
     }));
 
     const animatedSignupStyle = useAnimatedStyle(() => ({
-        height: withTiming(expandSignup ? 200 : COLLAPSED_HEIGHT, TIMING_CONFIG),
+        height: withTiming(expandSignup ? 220 : COLLAPSED_HEIGHT, TIMING_CONFIG),
     }));
 
+    const isDarkMode = colorScheme === 'dark';
+
     return (
-        <View style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: '100%',
-            gap: 3,
-        }}>
-            <Text style={{ color: colorScheme === 'dark' ? '#fff' : '#000' }}>Welcome</Text>
+        <View style={styles.container}>
+            <Text style={[styles.welcomeText, { color: isDarkMode ? '#fff' : '#000' }]}>
+                Welcome
+            </Text>
+
             <Pressable
                 style={({ hovered }) => [
-                    {
-                        backgroundColor: '#8a3ffc',
-                        width: '95%',
-                        borderRadius: 12,
-                        height: 43,
-                    },
-                    hovered && {
-                        backgroundColor: '#7433d4',
-                    },
+                    styles.button,
+                    styles.loginButton,
+                    hovered && styles.loginButtonHovered,
                 ]}
                 onPress={() => setExpandLogin((prev) => !prev)}
             >
@@ -58,27 +51,18 @@ const Auth = () => {
             }
 
             <Pressable
-                style={{
-                    backgroundColor: '#3a3a3a',
-                    width: '95%',
-                    borderRadius: 12,
-                    height: 43
-                }}
+                style={[styles.button, styles.secondaryButton]}
                 onPress={() => setExpandSignup((prev) => !prev)}>
                 <Text style={styles.buttonLabel}>Sign Up</Text>
             </Pressable>
+
             {expandSignup &&
                 <Animated.View style={[styles.box, animatedSignupStyle]}>
                     <SignupForm />
                 </Animated.View>
             }
-            <Pressable
-                style={{
-                    backgroundColor: '#3a3a3a',
-                    width: '95%',
-                    borderRadius: 12,
-                    height: 43
-                }}>
+
+            <Pressable disabled style={[styles.button, styles.secondaryButton]}>
                 <Text style={styles.buttonLabel}>Enter as guest</Text>
             </Pressable>
         </View >
@@ -86,20 +70,3 @@ const Auth = () => {
 }
 
 export default Auth;
-
-const styles = StyleSheet.create({
-    buttonLabel: {
-        color: '#fff',
-        margin: 'auto',
-    },
-    container: {
-        paddingTop: 80,
-        paddingHorizontal: 24,
-    },
-    box: {
-        // width: '100%',
-        overflow: 'hidden',
-        // backgroundColor: '#eee',
-        marginTop: 16,
-    },
-})

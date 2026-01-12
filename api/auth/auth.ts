@@ -5,9 +5,15 @@ import {
     isErrorWithCode,
     isSuccessResponse,
     SignInResponse,
-    statusCodes,
+    statusCodes
 } from '@react-native-google-signin/google-signin';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithCredential,
+    signInWithEmailAndPassword,
+    User
+} from "firebase/auth";
 import { formatAssignedUser, formatUser, insertUser } from './users';
 import { userNotAssignedYet } from './utiles';
 
@@ -27,7 +33,7 @@ const login = async (): Promise<IUser | undefined> => {
                 await insertUser(user);
             }
 
-            return formatAssignedUser(response.data.user);
+            return await formatAssignedUser(response.data.user);
         }
 
     } catch (error) {
@@ -55,36 +61,34 @@ const logout = async () => {
 }
 
 
-const siginWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
+const siginWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
-        signInWithEmailAndPassword(auth, credentials.email, credentials.password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                return user;
-            })
-            .catch((error) => {
-                console.log({ error })
-                const errorCode = error.code;
-                const errorMessage = error.message;
-            });
+        const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+
+        const result: User = userCredential.user;
+
+        if (result) {
+            return await formatAssignedUser({ email: credentials.email });
+        }
+
+
     } catch (error) {
         console.log({ error })
     }
 }
 
-const sigupWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
+const createWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
-        createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                return user;
-            })
-            .catch((error) => {
-                console.log({ error })
-                const errorCode = error.code;
-                const errorMessage = error.message;
-            });
+        const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
+        const result: User = userCredential.user;
+
+        const user = formatUser({ id: result.uid, email: credentials.email }, result.uid)
+
+        if (await userNotAssignedYet(credentials.email)) {
+            await insertUser(user);
+        }
+        console.log({ user })
+        return user;
     } catch (error) {
         console.log({ error })
     }
@@ -106,7 +110,7 @@ const verifyEmail = () => {
 }
 
 export {
-    login,
-    logout, siginWithEmailPasswrodMethod, sigupWithEmailPasswrodMethod
+    createWithEmailPasswrodMethod, login,
+    logout, siginWithEmailPasswrodMethod
 };
 

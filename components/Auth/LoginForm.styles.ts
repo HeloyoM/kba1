@@ -1,0 +1,96 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+    loginFormContainer: {
+        backgroundColor: '#1a1a1a',
+        width: '95%',
+        borderRadius: 12,
+        margin: 2,
+        padding: 16,
+    },
+    continueText: {
+        marginVertical: 10,
+        fontSize: 16,
+        color: '#fff',
+        textAlign: 'center',
+    },
+    socialConnection: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        marginBottom: 20,
+    },
+    googleButton: {
+        width: '50%',
+    },
+    cell: {
+        width: '45%',
+        height: 45,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        backgroundColor: '#242424',
+        borderColor: '#333',
+    },
+    bottomCell: {
+        width: '95%',
+        marginTop: 10,
+        borderRadius: 12,
+        backgroundColor: '#242424',
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#333',
+    },
+    cellText: {
+        color: '#fff',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        width: '100%',
+        marginVertical: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dividerText: {
+        color: '#888',
+        backgroundColor: '#1a1a1a',
+        paddingHorizontal: 10,
+        position: 'absolute',
+    },
+    inputContainer: {
+        marginTop: 10,
+        gap: 12,
+        alignItems: 'center',
+    },
+    input: {
+        backgroundColor: '#0d0d0d',
+        paddingHorizontal: 16,
+        color: '#fff',
+        borderRadius: 12,
+        width: '85%',
+        height: 48,
+        borderWidth: 1,
+        borderColor: '#333',
+    },
+    submitButton: {
+        backgroundColor: '#8a3ffc',
+        width: '95%',
+        borderRadius: 12,
+        height: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    submitButtonHovered: {
+        backgroundColor: '#7433d4',
+    },
+    buttonLabel: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+    },
+});

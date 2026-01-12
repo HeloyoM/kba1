@@ -16,4 +16,5 @@ export default interface IUser {
     uid?: string;
     location?: string;
     birthday?: string;
+    bio?: string;
 }

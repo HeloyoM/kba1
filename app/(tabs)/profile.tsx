@@ -19,12 +19,12 @@ const Profile = () => {
     const theme = colorScheme === 'dark' ? darkStyles : lightStyles;
     return (
         <View style={[styles.container, theme.container]}>
-            {/* Header */}
+
             <View style={[styles.header, theme.header]}>
                 <Text style={[styles.headerText, theme.headerText]}>My Profile</Text>
             </View>
 
-            {/* Main content */}
+
             <ScrollView contentContainerStyle={styles.content}>
                 <ProfileHeader />
                 <PersonalInfoSection />
