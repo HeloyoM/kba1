@@ -1,11 +1,13 @@
 import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
+import { collection, doc, DocumentData, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import IUser from '@/interface/user.interface';
-import { collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+
+const usersRef = collection(db, DBcollections.USERS);
 
 const getUsersList = async (): Promise<IUser[] | undefined> => {
     try {
-        const querySnapshot = await getDocs(collection(db, DBcollections.USERS));
+        const querySnapshot = await getDocs(usersRef);
 
         const users: IUser[] = [];
 
@@ -17,6 +19,14 @@ const getUsersList = async (): Promise<IUser[] | undefined> => {
     } catch (error) {
         console.log({ error })
     }
+}
+
+const getUserByEmailAdd = async (email: string): Promise<QuerySnapshot<DocumentData, DocumentData>> => {
+    const emailAdd = email.trim().toLocaleLowerCase();
+
+    const q = query(usersRef, where("email", "==", emailAdd));
+
+    return await getDocs(q);
 }
 
 const insertUser = async (user: IUser): Promise<void> => {
@@ -33,8 +43,7 @@ const updateUser = async (user: Partial<IUser>): Promise<void> => {
 const formatAssignedUser = async (user: { email: string; name?: string | null; familyName?: string | null }): Promise<IUser | undefined> => {
     const timeStamp = serverTimestamp();
 
-    const q = query(collection(db, DBcollections.USERS), where("email", "==", user.email));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getUserByEmailAdd(user.email);
 
     if (!querySnapshot.empty) {
         const userInfo = querySnapshot.docs[0].data();
@@ -90,8 +99,11 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
 
 
 export {
-    formatAssignedUser, formatUser, getUsersList,
+    formatAssignedUser,
+    formatUser,
+    getUsersList,
     insertUser,
-    updateUser
+    updateUser,
+    getUserByEmailAdd
 };
 

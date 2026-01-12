@@ -60,7 +60,6 @@ const logout = async () => {
     }
 }
 
-
 const siginWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
@@ -79,7 +78,8 @@ const siginWithEmailPasswrodMethod = async (credentials: { email: string, passwo
 
 const createWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
+        const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
+
         const result: User = userCredential.user;
 
         const user = formatUser({ id: result.uid, email: credentials.email }, result.uid)
@@ -110,7 +110,9 @@ const verifyEmail = () => {
 }
 
 export {
-    createWithEmailPasswrodMethod, login,
-    logout, siginWithEmailPasswrodMethod
+    createWithEmailPasswrodMethod,
+    login,
+    logout,
+    siginWithEmailPasswrodMethod
 };
 
