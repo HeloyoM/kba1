@@ -22,10 +22,6 @@ export default function Home() {
         />
     )
 
-    if (user.givenName == undefined) {
-        return <Redirect href="/profile" />;
-    }
-
     return (
         <SafeAreaView style={styles.safe}>
             <ScrollView contentContainerStyle={styles.scrollContent}>

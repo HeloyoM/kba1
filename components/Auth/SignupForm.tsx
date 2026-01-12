@@ -17,7 +17,7 @@ const SignupForm = () => {
     setLoading(true);
     try {
       const data = await createWithEmailPasswrodMethod({ email, password });
-      console.log({ data })
+
       if (data !== undefined) {
         setUser(data as unknown as IUser);
 

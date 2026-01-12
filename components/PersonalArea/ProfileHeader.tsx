@@ -5,21 +5,19 @@ import { Camera, Check, Edit2, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Alert, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { styles } from "./ProfileHeader.styles";
+import { CircularProgress } from "@expo/ui/jetpack-compose";
+import { colors } from "@/utils/colors";
 
 const ProfileHeader = () => {
     const { user, setUser } = useAppUser();
 
     const [isEditingName, setIsEditingName] = useState(false);
     const [isEditingBio, setIsEditingBio] = useState(false);
-
     const [displayName, setDisplayName] = useState(user?.name || '');
     const [tempDisplayName, setTempDisplayName] = useState(displayName);
     const [familyName, setFamilyName] = useState(user?.familyName || '');
     const [tempFamilyName, setTempFamilyName] = useState(familyName);
-
-    const [bio, setBio] = useState(
-        user?.bio || "Creative designer passionate about building meaningful connections 🌟"
-    );
+    const [bio, setBio] = useState(user?.bio);
     const [tempBio, setTempBio] = useState(bio);
     const [avatarUrl, setAvatarUrl] = useState(user?.photoUrl);
 
@@ -35,14 +33,18 @@ const ProfileHeader = () => {
 
     const handleSaveName = async () => {
         try {
+
             if (user?.uid) {
+
                 const fullGivenName = `${tempDisplayName} ${tempFamilyName}`.trim();
+
                 await updateUser({
                     uid: user.uid,
                     name: tempDisplayName,
                     familyName: tempFamilyName,
                     givenName: fullGivenName
                 });
+
                 setDisplayName(tempDisplayName);
                 setFamilyName(tempFamilyName);
                 setIsEditingName(false);
@@ -90,7 +92,7 @@ const ProfileHeader = () => {
         setIsEditingBio(false);
     };
 
-    if (user === null) return null;
+    if (user === null) return <CircularProgress color={colors.progress} />
 
     return (
         <View style={styles.container}>

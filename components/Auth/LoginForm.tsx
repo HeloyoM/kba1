@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { login, siginWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { appStaticConfig } from '@/constants/config';
 import { useAppUser } from '@/context/auth.context';
@@ -5,9 +6,9 @@ import IUser from '@/interface/user.interface';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { styles } from './LoginForm.styles';
+import { colors } from '@/utils/colors';
 
 const LoginForm = () => {
     const router = useRouter();
@@ -20,7 +21,7 @@ const LoginForm = () => {
         setLoading(true);
         try {
             const data = await login();
-            console.log({ data })
+
             if (data !== null) {
                 setUser(data as IUser);
 
@@ -37,32 +38,31 @@ const LoginForm = () => {
     }
 
     const handleEmailPasswordLogin = async () => {
-        setLoading(true);
         try {
             const data = await siginWithEmailPasswrodMethod({ email, password });
-            console.log({ data })
+
             if (data !== undefined) {
                 setUser(data as unknown as IUser);
 
                 setTimeout(() => {
-                    setLoading(false)
                     router.replace('/(tabs)/home');
                 }, appStaticConfig.pages.login_timeout)
             }
 
         } catch (error) {
             alert(`An error occured in login proccess: ${error}`)
-            setLoading(false);
         }
     }
 
     return (
         <View style={styles.loginFormContainer}>
+
             <Text style={styles.continueText}>Continue With</Text>
+
             <View style={styles.socialConnection}>
 
                 {loading ? (
-                    <CircularProgress color='#6495ED' />
+                    <CircularProgress color={colors.progress} />
                 ) :
                     (<GoogleSigninButton
                         color={'dark'}
@@ -113,6 +113,7 @@ const LoginForm = () => {
                 >
                     <Text style={styles.buttonLabel}>Sign In</Text>
                 </Pressable>
+
             </View>
         </View>
     )
