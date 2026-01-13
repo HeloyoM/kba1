@@ -1,12 +1,12 @@
 import { addEventComment } from "@/api/events/events";
 import { useAppUser } from "@/context/auth.context";
-import { EventRSVPStatus, IEvent } from "@/interface/events.interface";
+import { EventComment, EventRSVPStatus, IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
 } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Timestamp } from "firebase/firestore";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import {
     Alert,
@@ -61,7 +61,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     );
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [newComment, setNewComment] = useState("");
-    const [comments, setComments] = useState<IEvent["comments"]>(event.comments || []);
+    const [comments, setComments] = useState<EventComment[]>(event.comments || []);
     const { user: currentUser } = useAppUser();
 
     dayjs.extend(relativeTime);
@@ -116,12 +116,11 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
             Toast.show({ type: "error", text1: "You must be logged in to comment" });
             return;
         }
-
         const commentObj = {
             user: currentUser.name || currentUser.email || "Anonymous",
             avatar: currentUser.photoUrl || "",
             comment: newComment.trim(),
-            time: dayjs().fromNow(),
+            time: Timestamp.now(),
         };
 
         try {
@@ -129,7 +128,10 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
             setComments((prev) => [...prev, commentObj]);
             setNewComment("");
 
-            await addEventComment(event.id, commentObj);
+            await addEventComment(event.id, {
+                ...commentObj,
+                time: serverTimestamp(),
+            });
             Toast.show({ type: "success", text1: "Comment posted!" });
         } catch (error) {
             // Rollback optimistic update if needed, but for now just show error
@@ -246,7 +248,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                             icon="clock"
                             label="Date & Time"
                             primary={formatFullDate(event.date)}
-                            secondary={event.time}
+                            secondary={event.time.toDate().toString()}
                         />
 
                         <InfoRow
@@ -290,7 +292,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                                         {index < event.schedule.length - 1 && <View style={styles.scheduleLine} />}
                                     </View>
                                     <View style={styles.scheduleContent}>
-                                        <Text style={styles.scheduleTime}>{item.time}</Text>
+                                        <Text style={styles.scheduleTime}>{item.time.toDate().toLocaleTimeString()}</Text>
                                         <Text style={[styles.scheduleActivity, styles.textDark]}>
                                             {item.activity}
                                         </Text>
@@ -348,7 +350,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                                         <View style={styles.commentContent}>
                                             <View style={styles.commentHeader}>
                                                 <Text style={[styles.commentUser, styles.textDark]}>{comment.user}</Text>
-                                                <Text style={styles.commentTime}>{comment.time}</Text>
+                                                <Text style={styles.commentTime}>{comment.time.toDate().toLocaleTimeString()}</Text>
                                             </View>
                                             <Text style={[styles.commentText, styles.textMutedLight]}>
                                                 {comment.comment}

@@ -3,11 +3,13 @@ import { DBcollections } from '@/constants/DBcollections';
 import { IEvent } from '@/interface/events.interface';
 import { addDoc, arrayUnion, collection, doc, getDocs, updateDoc, } from 'firebase/firestore';
 
+const eventsRef = collection(db, DBcollections.EVENTS);
+
 const getEventsList = async () => {
     console.log(`fetching events lsit from DB...`)
     try {
 
-        const querySnapshot = await getDocs(collection(db, DBcollections.EVENTS));
+        const querySnapshot = await getDocs(eventsRef);
 
         const events: IEvent[] = []
 
@@ -23,7 +25,10 @@ const getEventsList = async () => {
 
 const addEventComment = async (eventId: string, comment: any) => {
     try {
+
+        console.log({ eventId })
         const eventRef = doc(db, DBcollections.EVENTS, eventId);
+
         await updateDoc(eventRef, {
             comments: arrayUnion(comment)
         });
@@ -37,7 +42,7 @@ const addEventComment = async (eventId: string, comment: any) => {
 
 const insertEvet = async (newEvent: Partial<IEvent>) => {
     try {
-        const result = await addDoc(collection(db, DBcollections.EVENTS), newEvent);
+        const result = await addDoc(eventsRef, newEvent);
         if (result.id) {
             console.log(`new events is inserted successfully, with the given id: ${result.id}`)
         }
@@ -63,6 +68,7 @@ const insertEvet = async (newEvent: Partial<IEvent>) => {
 
 
 export {
-    addEventComment, getEventsList,
+    addEventComment,
+    getEventsList,
     insertEvet
 };
