@@ -134,9 +134,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e5e7eb',
         marginBottom: 16,
+        width: 280,
+        marginRight: 16,
     } as ViewStyle,
     imageContainer: {
         height: 192,
+        width: '100%',
         overflow: 'hidden',
     } as ViewStyle,
     image: {

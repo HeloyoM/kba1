@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Alert,
     SafeAreaView,
+    Share,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -51,8 +52,29 @@ export function CampaignDetails({ campaign: initialCampaign, onBack, onEdit }: C
         Alert.alert(`Opening donation form for: ${campaign.title}`);
     }
 
-    function handleShare() {
-        Alert.alert('Share', 'Share functionality not implemented.');
+    async function handleShare() {
+        try {
+            const deepLink = `kba://campaigns/${campaign.id}`;
+            const message = `${campaign.title}\n\n${campaign.description}\n\nDue Date: ${campaign.deadline}\n\nJoin us: ${deepLink}`;
+
+            const result = await Share.share({
+                message: message,
+                title: campaign.title,
+                url: deepLink, // Primarily for iOS
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error: any) {
+            Alert.alert(error.message);
+        }
     }
 
     function handleLikeToggle() {
