@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
 import { login, siginWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { appStaticConfig } from '@/constants/config';
 import { useAppUser } from '@/context/auth.context';
 import IUser from '@/interface/user.interface';
+import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { styles } from './LoginForm.styles';
-import { colors } from '@/utils/colors';
 
 const LoginForm = () => {
     const router = useRouter();
@@ -27,7 +27,7 @@ const LoginForm = () => {
 
                 setTimeout(() => {
                     setLoading(false)
-                    router.replace('/(tabs)/home');
+                    router.replace('/(tabs)');
                 }, appStaticConfig.pages.login_timeout)
             }
 
@@ -45,7 +45,7 @@ const LoginForm = () => {
                 setUser(data as unknown as IUser);
 
                 setTimeout(() => {
-                    router.replace('/(tabs)/home');
+                    router.replace('/(tabs)');
                 }, appStaticConfig.pages.login_timeout)
             }
 
@@ -64,10 +64,22 @@ const LoginForm = () => {
                 {loading ? (
                     <CircularProgress color={colors.progress} />
                 ) :
-                    (<GoogleSigninButton
-                        color={'dark'}
-                        style={styles.googleButton}
-                        onPress={handleGoogleLogin} />)
+                    (<Pressable
+                        onPress={handleGoogleLogin}
+                        style={({ pressed }) => [
+                            styles.googleButton,
+                            pressed && {
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
+                                transform: [{ scale: 0.98 }]
+                            }
+                        ]}
+                    >
+                        <GoogleSigninButton
+                            color={'dark'}
+                            style={{ width: '100%', height: 48 }}
+                            pointerEvents="none"
+                        />
+                    </Pressable>)
                 }
 
 

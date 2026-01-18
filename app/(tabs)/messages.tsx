@@ -5,7 +5,8 @@ import { mockMessages } from '@/data/mock-messages';
 import { IMessage } from '@/interface/message.interface';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { FlatList, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Messages() {
     const [messages, setMessages] = useState(mockMessages);
@@ -39,7 +40,7 @@ export default function Messages() {
 
     console.log({ selectedMessage })
     return (
-        <SafeAreaView style={[styles.container]}>
+        <SafeAreaView style={[styles.container]} edges={['top']}>
             <View style={[styles.header]}>
                 <View>
                     <Text style={[styles.headerTitle]}>Messages</Text>

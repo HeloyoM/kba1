@@ -1,25 +1,104 @@
-import React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
-import Card from "./Card";
+import { getCampaignsList } from "@/api/campaigns/campaigns";
+import { CampaignTypeEnum } from "@/interface/campaign.interface";
 import { colors } from "@/utils/colors";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import Card from "./Card";
+import Typewriter from "./Typewriter";
 
-const demo = [
-    { title: 'Welcome!', subtitle: 'Community feed and announcements', accent: colors.blue },
-    { title: 'New Event', subtitle: 'Shabbat dinner on Friday', accent: colors.pink },
-    { title: 'Member Spotlight', subtitle: 'Say hi to our new neighbors', accent: colors.yellow },
-    { title: 'Help Needed', subtitle: 'Volunteer for food delivery', accent: colors.purple }
+const volunteerWords = [
+    'food delivery',
+    'making cake for Shabos',
+    'visiting elderly',
+    'teaching Hebrew',
+    'event setup',
+    'community garden'
 ];
 
-const Menu = () => {
+const eventWords = [
+    'birthdays',
+    'anniversaries',
+    'graduations',
+    'baby showers',
+    'house warmings',
+    'Shabbat dinners'
+];
+
+interface DynamicSubtitleProps {
+    prefix: string;
+    words: string[];
+    color: string;
+}
+
+const DynamicSubtitle = ({ prefix, words, color }: DynamicSubtitleProps) => {
+    const [wordIndex, setWordIndex] = React.useState<number>(0);
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setWordIndex((prev) => (prev + 1) % words.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [words.length]);
 
     return (
+        <Text style={styles.sub}>
+            {prefix}{' '}
+            <Typewriter
+                text={words[wordIndex]}
+                style={[styles.typingText, { color }]}
+                speed={70}
+                cursor={true}
+            />
+        </Text>
+    );
+};
 
+const Menu = () => {
+    const router = useRouter();
+    const [openedCampaignsCount, setOpenedCampaignsCount] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchCampaigns = async () => {
+            const campaigns = await getCampaignsList();
+            const activeCampaigns = campaigns.filter(c => c.status === 'active');
+            setOpenedCampaignsCount(activeCampaigns.length);
+        };
+        fetchCampaigns();
+    }, []);
+
+    const demo = [
+        {
+            title: 'New Event',
+            subtitle: <DynamicSubtitle prefix="Organize" words={eventWords} color={colors.pink} />,
+            accent: colors.pink,
+            path: '/events?view=create'
+        },
+        {
+            title: 'Member Spotlight',
+            subtitle: `Join the campaign (${openedCampaignsCount})`,
+            accent: colors.yellow,
+            path: `/community?type=${CampaignTypeEnum.AWARENESS}`
+        },
+        {
+            title: 'Help Needed',
+            subtitle: <DynamicSubtitle prefix="Volunteer for" words={volunteerWords} color={colors.purple} />,
+            accent: colors.purple,
+            path: `/community?type=${CampaignTypeEnum.VOLUNTEER}`
+        }
+    ];
+
+    return (
         demo.map((d, i) => (
-            <TouchableOpacity key={i} activeOpacity={0.85} style={styles.cardWrapper}>
+            <TouchableOpacity
+                key={i}
+                activeOpacity={0.85}
+                style={styles.cardWrapper}
+                onPress={() => router.push(d.path as any)}
+            >
                 <Card index={i} title={d.title} subtitle={d.subtitle} accent={d.accent} />
             </TouchableOpacity>
         ))
-
     )
 }
 
@@ -34,5 +113,9 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 4 },
         elevation: 6,
+    },
+    sub: { color: colors.textSecondary, fontSize: 14 },
+    typingText: {
+        fontWeight: '600'
     }
 })

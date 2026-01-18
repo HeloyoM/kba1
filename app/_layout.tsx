@@ -1,11 +1,12 @@
+import { AppUserProvider } from '@/context/auth.context';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { AppUserProvider } from '@/context/auth.context';
 import { useEffect } from 'react';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -22,15 +23,17 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AppUserProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          <Stack.Screen name="auth" options={{ presentation: 'card', title: 'Auth' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </AppUserProvider>
-    </ThemeProvider >
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <AppUserProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            <Stack.Screen name="auth" options={{ presentation: 'card', title: 'Auth' }} />
+          </Stack>
+          <StatusBar style="auto" />
+        </AppUserProvider>
+      </ThemeProvider >
+    </SafeAreaProvider>
   );
 }

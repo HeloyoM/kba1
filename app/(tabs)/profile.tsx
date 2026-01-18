@@ -27,10 +27,10 @@ const Profile = () => {
 
             <ScrollView contentContainerStyle={styles.content}>
                 <ProfileHeader />
-                <PersonalInfoSection />
+                {/* <PersonalInfoSection />
                 <AccountSettingsSection />
                 <ActivityOverview />
-                <SecuritySection />
+                <SecuritySection /> */}
                 <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
                     <IconSymbol color="#fff" size={20} name='door.french.open' />
                     <Text style={styles.logoutText}>Logout</Text>
