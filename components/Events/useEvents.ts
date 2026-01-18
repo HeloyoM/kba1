@@ -38,11 +38,11 @@ export const useEvents = () => {
                 e.title.toLowerCase().includes(query) ||
                 e.description.toLowerCase().includes(query)
             )
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            .sort((a, b) => b.date.toMillis() - a.date.toMillis());
     }, [events, searchQuery]);
 
     const upcomingUserEvents = useMemo(() =>
-        events.filter(e => e.userRSVP === 'joined' && new Date(e.date) > new Date()),
+        events.filter(e => e.userRSVP === 'joined' && e.date.toMillis() > Date.now()),
         [events]);
 
     return {

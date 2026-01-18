@@ -17,7 +17,7 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) 
                 {event.title}
             </Text>
             <Text style={styles.details}>
-                {new Date(event.date).toLocaleDateString()} — {event.location}
+                {event.date && typeof event.date.toDate === 'function' ? event.date.toDate().toLocaleDateString() : 'Invalid Date'} — {event.location}
             </Text>
         </TouchableOpacity>
     );

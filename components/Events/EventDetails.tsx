@@ -154,13 +154,13 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     };
 
     const formatFullDate = (d: Timestamp) => {
-        const date = d.toDate();
-        return date.toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
+        if (!d || typeof d.toDate !== "function") return "Invalid Date";
+        return dayjs(d.toDate()).format("dddd, MMMM D, YYYY");
+    };
+
+    const formatTime = (d: Timestamp) => {
+        if (!d || typeof d.toDate !== "function") return "Invalid Time";
+        return dayjs(d.toDate()).format("h:mm A");
     };
 
     // photo grid: show up to 6 by default (or all if toggled)
@@ -248,7 +248,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                             icon="clock"
                             label="Date & Time"
                             primary={formatFullDate(event.date)}
-                            secondary={event.time.toDate().toString()}
+                            secondary={formatTime(event.time)}
                         />
 
                         <InfoRow
@@ -292,7 +292,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                                         {index < event.schedule.length - 1 && <View style={styles.scheduleLine} />}
                                     </View>
                                     <View style={styles.scheduleContent}>
-                                        <Text style={styles.scheduleTime}>{item.time.toDate().toLocaleTimeString()}</Text>
+                                        <Text style={styles.scheduleTime}>{formatTime(item.time)}</Text>
                                         <Text style={[styles.scheduleActivity, styles.textDark]}>
                                             {item.activity}
                                         </Text>
@@ -350,7 +350,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                                         <View style={styles.commentContent}>
                                             <View style={styles.commentHeader}>
                                                 <Text style={[styles.commentUser, styles.textDark]}>{comment.user}</Text>
-                                                <Text style={styles.commentTime}>{comment.time.toDate().toLocaleTimeString()}</Text>
+                                                <Text style={styles.commentTime}>{dayjs(comment.time.toDate()).fromNow()}</Text>
                                             </View>
                                             <Text style={[styles.commentText, styles.textMutedLight]}>
                                                 {comment.comment}
@@ -509,20 +509,18 @@ const styles = StyleSheet.create({
 
     actionsGrid: {
         flexDirection: "row",
-        justifyContent: "space-between",
+        flexWrap: "wrap",
         marginHorizontal: 16,
-        gap: 8 as any,
+        gap: 10,
         marginBottom: 16,
     },
     actionButton: {
-        flex: 1,
+        width: (width - 32 - 10) / 2, // 2-column layout: (Total Width - Container Padding - Gap) / 2
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         paddingVertical: 12,
-        marginHorizontal: 4,
         borderRadius: 12,
-        gap: 8 as any,
     },
     actionNeutral: {
         backgroundColor: "#f3f4f6",
@@ -534,9 +532,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#2563eb",
     },
     actionText: {
-        marginLeft: 6,
+        marginLeft: 8,
         fontWeight: "600",
         color: "#111",
+        fontSize: 14,
     },
     actionTextPrimary: {
         color: "#fff",
