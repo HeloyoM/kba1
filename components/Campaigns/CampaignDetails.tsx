@@ -1,10 +1,12 @@
-import { deleteCampaign } from '@/api/campaigns/campaigns';
+import { addComment, deleteCampaign } from '@/api/campaigns/campaigns';
+import { useAppUser } from '@/context/auth.context';
 import { ICampaign } from '@/interface/campaign.interface';
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     SafeAreaView,
+    Share,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -23,10 +25,16 @@ interface CampaignDetailsProps {
     onEdit: (campaign: ICampaign) => void;
 }
 
-export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsProps) {
+export function CampaignDetails({ campaign: initialCampaign, onBack, onEdit }: CampaignDetailsProps) {
+    const [campaign, setCampaign] = useState(initialCampaign);
     const [activeTabId, setActiveTabId] = useState<TabId>('about');
     const [commentInputText, setCommentInputText] = useState('');
     const [isLiked, setIsLiked] = useState(false);
+    const { user } = useAppUser();
+
+    useEffect(() => {
+        setCampaign(initialCampaign);
+    }, [initialCampaign]);
 
     const progress = calculateProgress(campaign.current, campaign.goal);
     const typeIcon = getTypeIcon(campaign.type);
@@ -44,8 +52,29 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
         Alert.alert(`Opening donation form for: ${campaign.title}`);
     }
 
-    function handleShare() {
-        Alert.alert('Share', 'Share functionality not implemented.');
+    async function handleShare() {
+        try {
+            const deepLink = `kba://campaigns/${campaign.id}`;
+            const message = `${campaign.title}\n\n${campaign.description}\n\nDue Date: ${campaign.deadline}\n\nJoin us: ${deepLink}`;
+
+            const result = await Share.share({
+                message: message,
+                title: campaign.title,
+                url: deepLink, // Primarily for iOS
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error: any) {
+            Alert.alert(error.message);
+        }
     }
 
     function handleLikeToggle() {
@@ -71,9 +100,43 @@ export function CampaignDetails({ campaign, onBack, onEdit }: CampaignDetailsPro
         ]);
     }
 
-    function handlePostComment() {
-        Alert.alert('Post Comment', `Posting comment: ${commentInputText}`);
+    async function handlePostComment() {
+        if (!user) {
+            Alert.alert("Sign In Required", "Please sign in to post a comment");
+            return;
+        }
+
+        if (!commentInputText.trim()) {
+            Alert.alert("Empty Comment", "Please enter a comment");
+            return;
+        }
+
+        const newComment = {
+            id: Date.now().toString(),
+            author: user.name || "Anonymous",
+            avatar: user.photoUrl || "https://ui-avatars.com/api/?name=Anonymous",
+            content: commentInputText,
+            timestamp: new Date().toISOString(),
+        };
+
+        const previousCampaign = campaign;
+
+        // Optimistic update
+        setCampaign(prev => ({
+            ...prev,
+            comments: [...(prev.comments || []), newComment]
+        }));
         setCommentInputText('');
+
+        try {
+            await addComment(campaign.id, newComment);
+        } catch (error) {
+            console.error(error);
+            // Revert state on error
+            setCampaign(previousCampaign);
+            setCommentInputText(newComment.content);
+            Alert.alert("Error", "Failed to post comment");
+        }
     }
 
     function getTypeIcon(type: string): React.ComponentProps<typeof Feather>['name'] {

@@ -9,4 +9,5 @@ export const colors = {
     yellow: '#FFEA00',
     purple: '#B388FF',
     green: '#00E676',
+    progress: '#6495ED',
 };

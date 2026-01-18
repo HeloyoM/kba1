@@ -1,13 +1,15 @@
 import { CampaignDetails } from '@/components/Campaigns/CampaignDetails';
 import { CampaignFeed } from '@/components/Campaigns/CampaignFeed';
 import { CampaignForm } from '@/components/Campaigns/CampaignForm';
-import { ICampaign } from '@/interface/campaign.interface';
+import { CampaignTypeEnum, ICampaign } from '@/interface/campaign.interface';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 
 type ViewType = 'feed' | 'details' | 'create' | 'edit';
 
 export default function Community() {
+    const { type } = useLocalSearchParams<{ type: CampaignTypeEnum | 'all' }>();
     const [currentView, setCurrentView] = useState<ViewType>('feed');
     const [selectedCampaign, setSelectedCampaign] = useState<ICampaign | null>(null);
 
@@ -43,6 +45,7 @@ export default function Community() {
                 <CampaignFeed
                     onViewCampaign={handleViewCampaign}
                     onCreateCampaign={handleCreateCampaign}
+                    initialType={type}
                 />
             )}
 

@@ -1,17 +1,19 @@
-
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import Toast from "react-native-toast-message";
-import { EventFeed } from '@/components/Events/EventFeed';
-import { EventDetails } from '@/components/Events/EventDetails';
 import EventCreation from '@/components/Events/EventCreation';
+import { EventDetails } from '@/components/Events/EventDetails';
+import { EventFeed } from '@/components/Events/EventFeed';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { IEvent } from '@/interface/events.interface';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useState } from 'react';
+import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from "react-native-toast-message";
 
 type ViewType = "feed" | "details" | "create";
 
 export default function Events() {
-  const [currentView, setCurrentView] = useState<ViewType>("feed");
+  const { view } = useLocalSearchParams<{ view: ViewType }>();
+  const [currentView, setCurrentView] = useState<ViewType>(view || "feed");
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
 
   const handleEventClick = (event: IEvent) => {
@@ -29,7 +31,7 @@ export default function Events() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar
         barStyle={"dark-content"}
       />

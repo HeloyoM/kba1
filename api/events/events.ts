@@ -1,30 +1,48 @@
 import { db } from '@/config/firebase';
-import { collection, getDocs, addDoc, } from 'firebase/firestore';
-import { IEvent } from '@/interface/events.interface';
 import { DBcollections } from '@/constants/DBcollections';
+import { IEvent } from '@/interface/events.interface';
+import { addDoc, arrayUnion, collection, doc, getDocs, updateDoc, } from 'firebase/firestore';
+
+const eventsRef = collection(db, DBcollections.EVENTS);
 
 const getEventsList = async () => {
     console.log(`fetching events lsit from DB...`)
     try {
 
-        const querySnapshot = await getDocs(collection(db, DBcollections.EVENTS));
+        const querySnapshot = await getDocs(eventsRef);
 
         const events: IEvent[] = []
 
         querySnapshot.forEach((doc) => {
-            events.push(doc.data() as IEvent);
+            events.push({ id: doc.id, ...doc.data() } as IEvent);
         });
 
         return events
     } catch (error) {
-        // do something
+        console.error('getEventsList error:', error);
+    }
+}
+
+const addEventComment = async (eventId: string, comment: any) => {
+    try {
+
+        console.log({ eventId })
+        const eventRef = doc(db, DBcollections.EVENTS, eventId);
+
+        await updateDoc(eventRef, {
+            comments: arrayUnion(comment)
+        });
+        console.log(`Comment added to event ${eventId}`);
+    } catch (error) {
+        console.error(`Error adding comment to event ${eventId}:`, error);
+        throw error;
     }
 }
 
 
 const insertEvet = async (newEvent: Partial<IEvent>) => {
     try {
-        const result = await addDoc(collection(db, DBcollections.EVENTS), newEvent);
+        const result = await addDoc(eventsRef, newEvent);
         if (result.id) {
             console.log(`new events is inserted successfully, with the given id: ${result.id}`)
         }
@@ -50,7 +68,7 @@ const insertEvet = async (newEvent: Partial<IEvent>) => {
 
 
 export {
+    addEventComment,
     getEventsList,
-    insertEvet,
-    //migrationFunc,
-}
+    insertEvet
+};

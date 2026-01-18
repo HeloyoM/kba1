@@ -49,6 +49,7 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
     };
 
     const handleSubmit = async () => {
+        console.log({ formData })
         if (!formData.title || !formData.description || !formData.type) {
             Alert.alert("Error", "Please fill in required fields");
             return;
@@ -82,7 +83,7 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
                 mediaGallery: campaign?.mediaGallery || [],
                 comments: campaign?.comments || []
             };
-
+            console.log({ campaignData })
             if (campaign?.id) {
                 await updateCampaign(campaign.id, campaignData);
             } else {

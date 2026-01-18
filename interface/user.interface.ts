@@ -13,4 +13,8 @@ export default interface IUser {
     phone: string;
     role: string;
     subscriptionExpires: number;
+    uid?: string;
+    location?: string;
+    birthday?: string;
+    bio?: string;
 }

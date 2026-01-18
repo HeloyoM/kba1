@@ -1,11 +1,11 @@
 // src/components/Card.js
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '@/utils/colors';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   title: string
-  subtitle: string
+  subtitle: string | React.ReactNode
   accent: string
   index: number
 }
@@ -14,7 +14,11 @@ export default function Card({ title, subtitle, accent = colors.blue, index = 0 
     <View style={[styles.card, { backgroundColor: colors.card }]}>
       <View style={[styles.accent, { backgroundColor: accent }]} />
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.sub}>{subtitle}</Text>
+      {typeof subtitle === 'string' ? (
+        <Text style={styles.sub}>{subtitle}</Text>
+      ) : (
+        subtitle
+      )}
     </View>
   );
 }

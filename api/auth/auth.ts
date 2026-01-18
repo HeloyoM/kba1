@@ -1,15 +1,21 @@
 import { auth } from '@/config/firebase';
-import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import IUser from '@/interface/user.interface';
 import {
     GoogleSignin,
-    statusCodes,
-    isSuccessResponse,
     isErrorWithCode,
+    isSuccessResponse,
     SignInResponse,
+    statusCodes
 } from '@react-native-google-signin/google-signin';
-import { isUserExist } from './utiles';
-import IUser from '@/interface/user.interface';
-import { formatUser, insertUser } from './users';
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithCredential,
+    signInWithEmailAndPassword,
+    User
+} from "firebase/auth";
+import { formatAssignedUser, formatUser, insertUser } from './users';
+import { userNotAssignedYet } from './utiles';
 
 const login = async (): Promise<IUser | undefined> => {
     try {
@@ -18,18 +24,18 @@ const login = async (): Promise<IUser | undefined> => {
         if (isSuccessResponse(response)) {
 
             const idToken = response.data.idToken;
-
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             await signInWithCredential(auth, googleCredential);
 
             const user = formatUser(response.data.user)
-            if (await isUserExist(user.email)) {
+            if (await userNotAssignedYet(user.email)) {
                 await insertUser(user);
             }
 
-            return user;
+            return await formatAssignedUser(response.data.user);
         }
+
     } catch (error) {
         if (isErrorWithCode(error)) {
             switch (error.code) {
@@ -54,37 +60,35 @@ const logout = async () => {
     }
 }
 
-
-const siginWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
+const siginWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
-        signInWithEmailAndPassword(auth, credentials.email, credentials.password)
-            .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                return user;
-            })
-            .catch((error) => {
-                console.log({ error })
-                const errorCode = error.code;
-                const errorMessage = error.message;
-            });
+        const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+
+        const result: User = userCredential.user;
+
+        if (result) {
+            return await formatAssignedUser({ email: credentials.email });
+        }
+
+
     } catch (error) {
         console.log({ error })
     }
 }
 
-const sigupWithEmailPasswrodMethod = (credentials: { email: string, password: string }) => {
+const createWithEmailPasswrodMethod = async (credentials: { email: string, password: string }): Promise<IUser | undefined> => {
     try {
-        createUserWithEmailAndPassword(auth, credentials.email, credentials.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                return user;
-            })
-            .catch((error) => {
-                console.log({ error })
-                const errorCode = error.code;
-                const errorMessage = error.message;
-            });
+        const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
+
+        const result: User = userCredential.user;
+
+        const user = formatUser({ id: result.uid, email: credentials.email }, result.uid)
+
+        if (await userNotAssignedYet(credentials.email)) {
+            await insertUser(user);
+        }
+        console.log({ user })
+        return user;
     } catch (error) {
         console.log({ error })
     }
@@ -106,8 +110,9 @@ const verifyEmail = () => {
 }
 
 export {
+    createWithEmailPasswrodMethod,
     login,
     logout,
-    sigupWithEmailPasswrodMethod,
     siginWithEmailPasswrodMethod
-} 
+};
+

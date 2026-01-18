@@ -1,45 +1,66 @@
+import { createWithEmailPasswrodMethod } from '@/api/auth/auth';
 import React, { useState } from 'react';
-import { sigupWithEmailPasswrodMethod } from '@/api/auth/auth';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
+import { styles } from './SignupForm.styles';
+import { useAppUser } from '@/context/auth.context';
+import IUser from '@/interface/user.interface';
+import { useRouter } from 'expo-router';
+import { appStaticConfig } from '../../constants/config';
 
 const SignupForm = () => {
+  const router = useRouter();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const { setUser, setLoading, loading } = useAppUser();
+
+  const handleEmailPasswordSignup = async () => {
+    setLoading(true);
+    try {
+      const data = await createWithEmailPasswrodMethod({ email, password });
+
+      if (data !== undefined) {
+        setUser(data as unknown as IUser);
+
+        setTimeout(() => {
+          setLoading(false)
+          router.replace('/(tabs)/profile');
+        }, appStaticConfig.pages.login_timeout)
+      }
+
+
+    } catch (error) {
+      alert(`An error occured in signup proccess: ${error}`)
+      setLoading(false);
+    }
+  }
 
   return (
-    <View style={styles.loginFormContainer}>
-      <View style={{ marginTop: 15, marginBottom: 15, gap: 8, display: 'flex', alignItems: 'center', }}>
+    <View style={styles.signupFormContainer}>
+      <View style={styles.inputContainer}>
         <TextInput
-          placeholderTextColor={'#ededed'}
-          style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#ededed', borderRadius: 12, width: '100%' }}
+          placeholderTextColor={'#888'}
+          style={styles.input}
           placeholder='Email address'
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
 
         <TextInput
-          placeholderTextColor={'#ededed'}
-          style={{ backgroundColor: '#0d0d0d', paddingLeft: 16, color: '#fff', borderRadius: 12, width: '100%' }}
+          placeholderTextColor={'#888'}
+          style={styles.input}
           placeholder='Password'
           value={password}
           onChangeText={setPassword}
+          secureTextEntry
         />
 
         <Pressable
-          onPress={() => sigupWithEmailPasswrodMethod({ email, password })}
+          onPress={handleEmailPasswordSignup}
           style={({ hovered }) => [
-            {
-              backgroundColor: '#8a3ffc',
-              width: '95%',
-              borderRadius: 12,
-              height: 43,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            },
-            hovered && {
-              backgroundColor: '#7433d4',
-            },
+            styles.submitButton,
+            hovered && styles.submitButtonHovered
           ]}
         >
           <Text style={styles.buttonLabel}>Sign Up</Text>
@@ -50,21 +71,3 @@ const SignupForm = () => {
 }
 
 export default SignupForm
-
-
-const styles = StyleSheet.create({
-  loginFormContainer: {
-    backgroundColor: '#1a1a1a',
-    display: 'flex',
-    borderRadius: 12,
-    margin: 2,
-    padding: 12,
-    width: 320
-    // height: 'auto'
-  },
-  buttonLabel: {
-    color: '#fff',
-    margin: 'auto',
-    fontSize: 19
-  }
-})
