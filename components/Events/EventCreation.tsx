@@ -1,18 +1,21 @@
+import { insertEvet } from "@/api/events/events";
+import { useAppUser } from "@/context/auth.context";
+import { IEvent } from "@/interface/events.interface";
+import dayjs from 'dayjs';
+import { useRouter } from "expo-router";
+import { Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import {
-    View,
+    Alert,
+    ScrollView,
+    StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    ScrollView,
-    Alert,
-    StyleSheet,
+    View,
 } from "react-native";
-import { IconSymbol } from "../ui/icon-symbol";
 import Toast from "react-native-toast-message";
-import { insertEvet } from "@/api/events/events";
-import { IEvent } from "@/interface/events.interface";
-import dayjs from 'dayjs';
+import { IconSymbol } from "../ui/icon-symbol";
 
 interface ScheduleItem {
     time: string;
@@ -26,11 +29,15 @@ interface EventCreationProps {
 export default function EventCreation({
     onCancel,
 }: EventCreationProps) {
+    const { user } = useAppUser();
+    const router = useRouter();
+    const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
+
     const [formData, setFormData] = useState<Partial<IEvent>>({
         title: "",
         description: "",
-        date: new Date(),
-        time: "",
+        date: Timestamp.now(),
+        time: Timestamp.now(),
         location: "",
         isOnline: false,
         category: "",
@@ -122,8 +129,8 @@ export default function EventCreation({
                         <Text style={styles.label}>Date *</Text>
                         <TextInput
                             style={styles.input}
-                            // value={formData.date}
-                            onChangeText={(v) => setFormData({ ...formData, date: new Date(v) })}
+                            value={formData.date?.toDate().toISOString().split('T')[0]}
+                            onChangeText={(v) => setFormData({ ...formData, date: Timestamp.fromDate(new Date(v)) })}
                             placeholder="YYYY-MM-DD"
                             placeholderTextColor={styles.placeholder.color}
                         />
@@ -133,8 +140,13 @@ export default function EventCreation({
                         <Text style={styles.label}>Time *</Text>
                         <TextInput
                             style={styles.input}
-                            value={formData.time}
-                            onChangeText={(v) => setFormData({ ...formData, time: v })}
+                            value={formData.time?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            onChangeText={(v) => {
+                                const [h, m] = v.split(':');
+                                const d = new Date();
+                                d.setHours(parseInt(h), parseInt(m));
+                                setFormData({ ...formData, time: Timestamp.fromDate(d) });
+                            }}
                             placeholder="HH:MM"
                             placeholderTextColor={styles.placeholder.color}
                         />
@@ -263,10 +275,23 @@ export default function EventCreation({
                         <Text style={styles.cancelText}>Cancel</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.submitBtn} onPress={handleEventCreated}>
+                    <TouchableOpacity
+                        style={[styles.submitBtn, !isPaying && styles.disabledBtn]}
+                        onPress={isPaying ? handleEventCreated : () => {
+                            Alert.alert("Upgrade Required", "You need to pay for the system to create events.", [
+                                { text: "Cancel", style: "cancel" },
+                                { text: "Upgrade", onPress: () => router.push('/billing') }
+                            ]);
+                        }}
+                    >
                         <Text style={styles.submitText}>Create Event</Text>
                     </TouchableOpacity>
                 </View>
+                {!isPaying && (
+                    <Text style={styles.upgradeNotice}>
+                        * You are in read-only mode. Upgrade to create community events.
+                    </Text>
+                )}
             </View>
         </ScrollView>
     );
@@ -341,6 +366,16 @@ const lightStyles = StyleSheet.create({
     },
     submitText: { textAlign: "center", color: "white", fontWeight: "600" },
     helper: { fontSize: 12, color: "#777", marginTop: 6 },
+    disabledBtn: {
+        backgroundColor: '#ccc',
+    },
+    upgradeNotice: {
+        marginTop: 15,
+        color: '#E53935',
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '500',
+    }
 });
 
 /* -------------------------------------------------------------------------- */
@@ -401,4 +436,14 @@ const darkStyles = StyleSheet.create({
     },
     submitText: { textAlign: "center", color: "white", fontWeight: "600" },
     helper: { fontSize: 12, color: "#888", marginTop: 6 },
+    disabledBtn: {
+        backgroundColor: '#444',
+    },
+    upgradeNotice: {
+        marginTop: 15,
+        color: '#F87171',
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '500',
+    }
 });

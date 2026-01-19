@@ -1,16 +1,15 @@
-import { AccountSettingsSection } from "@/components/AccountSettingsSection";
-import ActivityOverview from "@/components/ActivityOverview";
-import { PersonalInfoSection } from "@/components/PersonalArea/PersonalInfoSection";
 import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
-import SecuritySection from "@/components/SecuritySection";
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from "@/context/auth.context";
-import { Redirect } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
 const Profile = () => {
     const colorScheme = useColorScheme();
+    const router = useRouter();
     const { logout, user } = useAppUser();
+
+    const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
 
     if (user === null) {
         return <Redirect href="/auth" />;
@@ -31,6 +30,17 @@ const Profile = () => {
                 <AccountSettingsSection />
                 <ActivityOverview />
                 <SecuritySection /> */}
+
+                {!isPaying && (
+                    <TouchableOpacity
+                        style={styles.upgradeButton}
+                        onPress={() => router.push('/billing')}
+                    >
+                        <IconSymbol color="#fff" size={20} name='star.fill' />
+                        <Text style={styles.upgradeText}>Upgrade to Premium</Text>
+                    </TouchableOpacity>
+                )}
+
                 <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
                     <IconSymbol color="#fff" size={20} name='door.french.open' />
                     <Text style={styles.logoutText}>Logout</Text>
@@ -84,6 +94,23 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     logoutText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    upgradeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#8A2BE2',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        marginHorizontal: 20,
+        marginTop: 20,
+        justifyContent: 'center',
+    },
+    upgradeText: {
         color: '#fff',
         fontWeight: '600',
         fontSize: 16,
