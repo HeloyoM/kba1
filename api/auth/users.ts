@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
-import { collection, doc, DocumentData, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import IUser from '@/interface/user.interface';
+import { collection, doc, DocumentData, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 
 const usersRef = collection(db, DBcollections.USERS);
 
@@ -89,7 +89,7 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
         phone: '',
         role: 'user',
         photoUrl: user.photo || null,
-        subscriptionExpires: new Date().getTime() + 1000000,
+        subscriptionExpires: 0,
         birthday: '',
         location: '',
     };
@@ -100,10 +100,8 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
 
 export {
     formatAssignedUser,
-    formatUser,
-    getUsersList,
+    formatUser, getUserByEmailAdd, getUsersList,
     insertUser,
-    updateUser,
-    getUserByEmailAdd
+    updateUser
 };
 

@@ -1,5 +1,7 @@
 import { addCampaign, updateCampaign } from '@/api/campaigns/campaigns';
+import { useAppUser } from '@/context/auth.context';
 import { CampaignStatus, CampaignType, ICampaign } from '@/interface/campaign.interface';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Button, Image, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -11,6 +13,10 @@ interface CampaignFormProps {
 }
 
 export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) {
+    const { user } = useAppUser();
+    const router = useRouter();
+    const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
+
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: campaign?.title || '',
@@ -276,9 +282,23 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
                     {isLoading ? (
                         <ActivityIndicator size="small" color="#0000ff" />
                     ) : (
-                        <Button title={isEditing ? 'Update Campaign' : 'Create Campaign'} onPress={handleSubmit} />
+                        <Button
+                            title={isEditing ? 'Update Campaign' : 'Create Campaign'}
+                            onPress={isPaying ? handleSubmit : () => {
+                                Alert.alert("Upgrade Required", "You need to pay for the system to create campaigns.", [
+                                    { text: "Cancel", style: "cancel" },
+                                    { text: "Upgrade", onPress: () => router.push('/billing') }
+                                ]);
+                            }}
+                            disabled={!isPaying}
+                        />
                     )}
                 </View>
+                {!isPaying && (
+                    <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>
+                        * Upgrade to premium to create or edit campaigns
+                    </Text>
+                )}
             </View>
         </ScrollView>
     );

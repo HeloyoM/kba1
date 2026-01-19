@@ -10,6 +10,7 @@ import {
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
+    signInAnonymously,
     signInWithCredential,
     signInWithEmailAndPassword,
     User
@@ -109,10 +110,33 @@ const verifyEmail = () => {
     }
 }
 
+const signInAnonymouslyMethod = async (): Promise<IUser | undefined> => {
+    try {
+        const userCredential = await signInAnonymously(auth);
+        const result: User = userCredential.user;
+
+        const user = formatUser({
+            id: result.uid,
+            email: 'guest@community.com',
+            name: 'Guest',
+            familyName: 'User'
+        }, result.uid);
+
+        if (await userNotAssignedYet(user.email)) {
+            await insertUser(user);
+        }
+
+        return user;
+    } catch (error) {
+        console.log({ error });
+    }
+}
+
 export {
     createWithEmailPasswrodMethod,
     login,
     logout,
-    siginWithEmailPasswrodMethod
+    siginWithEmailPasswrodMethod,
+    signInAnonymouslyMethod
 };
 

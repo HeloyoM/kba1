@@ -38,7 +38,7 @@ export default function Messages() {
     const unreadCount = messages.filter((m) => !m.isRead).length;
     const displayed = filtered.slice(0, displayCount);
 
-    console.log({ selectedMessage })
+    console.log({ openForm })
     return (
         <SafeAreaView style={[styles.container]} edges={['top']}>
             <View style={[styles.header]}>
