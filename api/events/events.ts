@@ -2,6 +2,7 @@ import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import { IEvent } from '@/interface/events.interface';
 import { addDoc, arrayUnion, collection, doc, getDocs, updateDoc, } from 'firebase/firestore';
+import { handleError } from '../error-handler';
 
 const eventsRef = collection(db, DBcollections.EVENTS);
 
@@ -19,7 +20,7 @@ const getEventsList = async () => {
 
         return events
     } catch (error) {
-        console.error('getEventsList error:', error);
+        handleError(error, 'Fetch Events Error');
     }
 }
 
@@ -34,7 +35,7 @@ const addEventComment = async (eventId: string, comment: any) => {
         });
         console.log(`Comment added to event ${eventId}`);
     } catch (error) {
-        console.error(`Error adding comment to event ${eventId}:`, error);
+        handleError(error, 'Add Comment Error');
         throw error;
     }
 }
@@ -47,7 +48,7 @@ const insertEvet = async (newEvent: Partial<IEvent>) => {
             console.log(`new events is inserted successfully, with the given id: ${result.id}`)
         }
     } catch (error) {
-        console.log(`something went wrong while adding event:  ${error}`)
+        handleError(error, 'Add Event Error');
     }
 }
 

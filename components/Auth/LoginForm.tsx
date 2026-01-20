@@ -1,6 +1,7 @@
 import { login, siginWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { appStaticConfig } from '@/constants/config';
 import { useAppUser } from '@/context/auth.context';
+import { useToast } from '@/context/toast.context';
 import IUser from '@/interface/user.interface';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
@@ -9,6 +10,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { styles } from './LoginForm.styles';
+import { AuthErrorCodes } from 'firebase/auth';
 
 const LoginForm = () => {
     const router = useRouter();
@@ -16,6 +18,7 @@ const LoginForm = () => {
     const [password, setPassword] = useState<string>('');
 
     const { setUser, setLoading, loading } = useAppUser();
+    const { showError } = useToast();
 
     const handleGoogleLogin = async () => {
         setLoading(true);
@@ -41,16 +44,22 @@ const LoginForm = () => {
         try {
             const data = await siginWithEmailPasswrodMethod({ email, password });
 
-            if (data !== undefined) {
-                setUser(data as unknown as IUser);
+            if (data) {
+                setUser(data);
 
                 setTimeout(() => {
+                    setLoading(false);
                     router.replace('/(tabs)');
                 }, appStaticConfig.pages.login_timeout)
             }
-
-        } catch (error) {
-            alert(`An error occured in login proccess: ${error}`)
+        } catch (error: any) {
+            console.log({ error })
+            setLoading(false);
+            const errorMessage = error?.code || error?.message || 'Unknown error';
+            console.log(error?.code, error?.message, 'Unknown error')
+            if (errorMessage === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS) {
+                showError(`Login error: Invalid credentials, check information or signup.`)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 import { insertEvet } from "@/api/events/events";
 import { useAppUser } from "@/context/auth.context";
+import { useToast } from "@/context/toast.context";
 import { IEvent } from "@/interface/events.interface";
 import dayjs from 'dayjs';
 import { useRouter } from "expo-router";
@@ -14,7 +15,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 import { IconSymbol } from "../ui/icon-symbol";
 
 interface ScheduleItem {
@@ -30,6 +30,7 @@ export default function EventCreation({
     onCancel,
 }: EventCreationProps) {
     const { user } = useAppUser();
+    const { showSuccess } = useToast();
     const router = useRouter();
     const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
 
@@ -63,7 +64,7 @@ export default function EventCreation({
 
     const handleEventCreated = () => {
         Alert.alert("Event Created", `${formData.title} has been published.`);
-        Toast.show({ type: "success", text1: "Event created!" });
+        showSuccess("Event created!");
         const newEvent = formData
         insertEvet(newEvent)
 

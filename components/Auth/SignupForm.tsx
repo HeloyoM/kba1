@@ -29,7 +29,6 @@ const SignupForm = () => {
 
 
     } catch (error) {
-      alert(`An error occured in signup proccess: ${error}`)
       setLoading(false);
     }
   }
@@ -46,7 +45,6 @@ const SignupForm = () => {
         }, appStaticConfig.pages.login_timeout);
       }
     } catch (error) {
-      alert(`An error occured in guest signin: ${error}`);
       setLoading(false);
     }
   }

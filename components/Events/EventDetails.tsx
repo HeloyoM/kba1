@@ -1,5 +1,6 @@
 import { addEventComment } from "@/api/events/events";
 import { useAppUser } from "@/context/auth.context";
+import { useToast } from "@/context/toast.context";
 import { EventComment, EventRSVPStatus, IEvent } from "@/interface/events.interface";
 import {
     Feather as Icon,
@@ -22,7 +23,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 import InfoRow from "./InfoRow";
 
 interface EventDetailsProps {
@@ -63,36 +63,28 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     const [newComment, setNewComment] = useState("");
     const [comments, setComments] = useState<EventComment[]>(event.comments || []);
     const { user: currentUser } = useAppUser();
+    const { showSuccess, showError, showInfo } = useToast();
 
     dayjs.extend(relativeTime);
 
     const handleRSVP = (status: Exclude<EventRSVPStatus, null>) => {
         if (rsvpStatus === status) {
             setRsvpStatus(null);
-            Toast.show({
-                type: "info",
-                text1: `Removed ${status === "joined" ? "attendance" : "interest"}`,
-            });
+            showInfo(`Removed ${status === "joined" ? "attendance" : "interest"}`);
         } else {
             setRsvpStatus(status);
-            Toast.show({
-                type: "success",
-                text1:
-                    status === "joined"
-                        ? "You're attending this event!"
-                        : "You're interested in this event!",
-                text2: `We'll send reminders about ${event.title}`,
-            });
+            showSuccess(
+                status === "joined"
+                    ? "You're attending this event!"
+                    : "You're interested in this event!",
+                `We'll send reminders about ${event.title}`
+            );
         }
     };
 
     const addToCalendar = async () => {
         // Minimal behavior: show toast. In production you may integrate expo-calendar or deep link to calendar apps.
-        Toast.show({
-            type: "success",
-            text1: "Added to calendar",
-            text2: "This event has been added to your calendar (simulated).",
-        });
+        showSuccess("Added to calendar", "This event has been added to your calendar (simulated).");
     };
 
     const shareEvent = async () => {
@@ -102,18 +94,18 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
             });
             // result handling not necessary here
         } catch (err) {
-            Toast.show({ type: "error", text1: "Unable to share event" });
+            showError("Unable to share event");
         }
     };
 
     const submitComment = async () => {
         if (!newComment.trim()) {
-            Toast.show({ type: "info", text1: "Please enter a comment first" });
+            showInfo("Please enter a comment first");
             return;
         }
 
         if (!currentUser) {
-            Toast.show({ type: "error", text1: "You must be logged in to comment" });
+            showError("You must be logged in to comment");
             return;
         }
         const commentObj = {
@@ -132,10 +124,10 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                 ...commentObj,
                 time: serverTimestamp(),
             });
-            Toast.show({ type: "success", text1: "Comment posted!" });
+            showSuccess("Comment posted!");
         } catch (error) {
             // Rollback optimistic update if needed, but for now just show error
-            Toast.show({ type: "error", text1: "Failed to post comment" });
+            showError("Failed to post comment");
             console.error("submitComment error:", error);
         }
     };
@@ -411,7 +403,6 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                 </View>
 
             </ScrollView>
-            <Toast />
         </>
     );
 }
