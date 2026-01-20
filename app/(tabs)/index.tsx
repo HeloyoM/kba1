@@ -4,12 +4,11 @@ import { useAppUser } from '@/context/auth.context';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
 import { Redirect } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   const { user, loading } = useAppUser();
-  const [isMigrating, setIsMigrating] = useState(false);
 
   if (user === null) {
     return <Redirect href="/auth" />;
@@ -24,18 +23,6 @@ export default function HomeScreen() {
     />
   )
 
-  const handleMigration = async () => {
-    setIsMigrating(true);
-    try {
-      await migrationFunc();
-      Alert.alert('Migration Success', '10 messages have been migrated to Firestore.');
-    } catch (error) {
-      Alert.alert('Migration Failed', 'Check console for details.');
-    } finally {
-      setIsMigrating(false);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -43,20 +30,6 @@ export default function HomeScreen() {
           <Text style={styles.greeting}>Hello, {user.givenName} 👋</Text>
           <Text style={styles.subtitle}>Here's what's happening today</Text>
         </View>
-
-        {user.role === 'admin' && (
-          <View style={styles.adminSection}>
-            <TouchableOpacity
-              style={[styles.migrationBtn, isMigrating && { opacity: 0.6 }]}
-              onPress={handleMigration}
-              disabled={isMigrating}
-            >
-              <Text style={styles.migrationBtnText}>
-                {isMigrating ? 'Migrating...' : 'Run Messages Migration 🚀'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         <View style={styles.cardsContainer}>
           <Menu />
