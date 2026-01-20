@@ -2,8 +2,9 @@ import { addCampaign, updateCampaign } from '@/api/campaigns/campaigns';
 import { useAppUser } from '@/context/auth.context';
 import { CampaignStatus, CampaignType, ICampaign } from '@/interface/campaign.interface';
 import { useRouter } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Button, Image, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, Image, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 interface CampaignFormProps {
@@ -122,185 +123,188 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
 
     return (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
-            <View style={{ marginBottom: 24 }}>
-                <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 12 }}>
+                <TouchableOpacity onPress={onCancel} style={styles.backButton}>
+                    <ArrowLeft size={24} color="#000" />
+                </TouchableOpacity>
+                <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
                     {isEditing ? 'Edit Campaign' : 'Create New Campaign'}
                 </Text>
+            </View>
 
-                {/* Title */}
-                <Text style={styles.label}>Campaign Title *</Text>
-                <TextInput
-                    value={formData.title}
-                    onChangeText={text => handleInputChange('title', text)}
-                    placeholder="Enter campaign title"
-                    style={styles.input}
-                />
+            {/* Title */}
+            <Text style={styles.label}>Campaign Title *</Text>
+            <TextInput
+                value={formData.title}
+                onChangeText={text => handleInputChange('title', text)}
+                placeholder="Enter campaign title"
+                style={styles.input}
+            />
 
-                {/* Short Description */}
-                <Text style={styles.label}>Short Description *</Text>
-                <TextInput
-                    value={formData.description}
-                    onChangeText={text => handleInputChange('description', text)}
-                    placeholder="Brief description"
-                    multiline
-                    style={[styles.input, { minHeight: 60 }]}
-                />
+            {/* Short Description */}
+            <Text style={styles.label}>Short Description *</Text>
+            <TextInput
+                value={formData.description}
+                onChangeText={text => handleInputChange('description', text)}
+                placeholder="Brief description"
+                multiline
+                style={[styles.input, { minHeight: 60 }]}
+            />
 
-                {/* Full Description */}
-                <Text style={styles.label}>Full Description *</Text>
-                <TextInput
-                    value={formData.fullDescription}
-                    onChangeText={text => handleInputChange('fullDescription', text)}
-                    placeholder="Detailed description"
-                    multiline
-                    style={[styles.input, { minHeight: 120 }]}
-                />
+            {/* Full Description */}
+            <Text style={styles.label}>Full Description *</Text>
+            <TextInput
+                value={formData.fullDescription}
+                onChangeText={text => handleInputChange('fullDescription', text)}
+                placeholder="Detailed description"
+                multiline
+                style={[styles.input, { minHeight: 120 }]}
+            />
 
-                {/* Campaign Type & Status */}
-                <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.label}>Type *</Text>
-                        <Dropdown
-                            style={[styles.dropdown, isFocusType && { borderColor: 'blue' }]}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={campaignTypes}
-                            search
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder={!isFocusType ? 'Select item' : '...'}
-                            searchPlaceholder="Search..."
-                            value={formData.type}
-                            onFocus={() => setIsFocusType(true)}
-                            onBlur={() => setIsFocusType(false)}
-                            onChange={item => {
-                                handleInputChange('type', item.value);
-                                setIsFocusType(false);
-                            }}
-                        />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.label}>Status *</Text>
-                        <Dropdown
-                            style={[styles.dropdown, isFocusStatus && { borderColor: 'blue' }]}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={campaignStatuses}
-                            search
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder={!isFocusStatus ? 'Select item' : '...'}
-                            searchPlaceholder="Search..."
-                            value={formData.status}
-                            onFocus={() => setIsFocusStatus(true)}
-                            onBlur={() => setIsFocusStatus(false)}
-                            onChange={item => {
-                                handleInputChange('status', item.value);
-                                setIsFocusStatus(false);
-                            }}
-                        />
-                    </View>
-                </View>
-
-                {/* Goal & Unit */}
-                <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
-                    <TextInput
-                        value={formData.goal}
-                        onChangeText={text => handleInputChange('goal', text)}
-                        placeholder="Goal"
-                        keyboardType="numeric"
-                        style={[styles.input, { flex: 1 }]}
-                    />
-                    <TextInput
-                        value={formData.unit}
-                        onChangeText={text => handleInputChange('unit', text)}
-                        placeholder="Unit"
-                        style={[styles.input, { flex: 1 }]}
+            {/* Campaign Type & Status */}
+            <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.label}>Type *</Text>
+                    <Dropdown
+                        style={[styles.dropdown, isFocusType && { borderColor: 'blue' }]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={campaignTypes}
+                        search
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={!isFocusType ? 'Select item' : '...'}
+                        searchPlaceholder="Search..."
+                        value={formData.type}
+                        onFocus={() => setIsFocusType(true)}
+                        onBlur={() => setIsFocusType(false)}
+                        onChange={item => {
+                            handleInputChange('type', item.value);
+                            setIsFocusType(false);
+                        }}
                     />
                 </View>
-
-                {/* Image */}
-                <Text style={styles.label}>Campaign Image URL</Text>
-                <TextInput
-                    value={imagePreview}
-                    onChangeText={setImagePreview}
-                    placeholder="Image URL"
-                    style={[styles.input, { marginBottom: 8 }]}
-                />
-                {imagePreview ? (
-                    <View style={{ marginBottom: 16 }}>
-                        <Image
-                            source={{ uri: imagePreview }}
-                            style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 8 }}
-                        />
-                    </View>
-                ) : null}
-
-                {/* Tags */}
-                <Text style={styles.label}>Tags (comma-separated)</Text>
-                <TextInput
-                    value={formData.tags}
-                    onChangeText={text => handleInputChange('tags', text)}
-                    placeholder="e.g., health, community"
-                    style={styles.input}
-                />
-
-                {/* Featured / Urgent / Trending */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text>Featured</Text>
-                        <Switch
-                            value={formData.featured}
-                            onValueChange={value => handleInputChange('featured', value)}
-                        />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text>Urgent</Text>
-                        <Switch
-                            value={formData.urgent}
-                            onValueChange={value => handleInputChange('urgent', value)}
-                        />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text>Trending</Text>
-                        <Switch
-                            value={formData.trending}
-                            onValueChange={value => handleInputChange('trending', value)}
-                        />
-                    </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.label}>Status *</Text>
+                    <Dropdown
+                        style={[styles.dropdown, isFocusStatus && { borderColor: 'blue' }]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={campaignStatuses}
+                        search
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={!isFocusStatus ? 'Select item' : '...'}
+                        searchPlaceholder="Search..."
+                        value={formData.status}
+                        onFocus={() => setIsFocusStatus(true)}
+                        onBlur={() => setIsFocusStatus(false)}
+                        onChange={item => {
+                            handleInputChange('status', item.value);
+                            setIsFocusStatus(false);
+                        }}
+                    />
                 </View>
+            </View>
 
-                {/* Action Buttons */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 32 }}>
-                    <Button title="Cancel" onPress={onCancel} color="#888" />
-                    {isLoading ? (
-                        <ActivityIndicator size="small" color="#0000ff" />
-                    ) : (
-                        <Button
-                            title={isEditing ? 'Update Campaign' : 'Create Campaign'}
-                            onPress={isPaying ? handleSubmit : () => {
-                                Alert.alert("Upgrade Required", "You need to pay for the system to create campaigns.", [
-                                    { text: "Cancel", style: "cancel" },
-                                    { text: "Upgrade", onPress: () => router.push('/billing') }
-                                ]);
-                            }}
-                            disabled={!isPaying}
-                        />
-                    )}
+            {/* Goal & Unit */}
+            <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
+                <TextInput
+                    value={formData.goal}
+                    onChangeText={text => handleInputChange('goal', text)}
+                    placeholder="Goal"
+                    keyboardType="numeric"
+                    style={[styles.input, { flex: 1 }]}
+                />
+                <TextInput
+                    value={formData.unit}
+                    onChangeText={text => handleInputChange('unit', text)}
+                    placeholder="Unit"
+                    style={[styles.input, { flex: 1 }]}
+                />
+            </View>
+
+            {/* Image */}
+            <Text style={styles.label}>Campaign Image URL</Text>
+            <TextInput
+                value={imagePreview}
+                onChangeText={setImagePreview}
+                placeholder="Image URL"
+                style={[styles.input, { marginBottom: 8 }]}
+            />
+            {imagePreview ? (
+                <View style={{ marginBottom: 16 }}>
+                    <Image
+                        source={{ uri: imagePreview }}
+                        style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 8 }}
+                    />
                 </View>
-                {!isPaying && (
-                    <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>
-                        * Upgrade to premium to create or edit campaigns
-                    </Text>
+            ) : null}
+
+            {/* Tags */}
+            <Text style={styles.label}>Tags (comma-separated)</Text>
+            <TextInput
+                value={formData.tags}
+                onChangeText={text => handleInputChange('tags', text)}
+                placeholder="e.g., health, community"
+                style={styles.input}
+            />
+
+            {/* Featured / Urgent / Trending */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text>Featured</Text>
+                    <Switch
+                        value={formData.featured}
+                        onValueChange={value => handleInputChange('featured', value)}
+                    />
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text>Urgent</Text>
+                    <Switch
+                        value={formData.urgent}
+                        onValueChange={value => handleInputChange('urgent', value)}
+                    />
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text>Trending</Text>
+                    <Switch
+                        value={formData.trending}
+                        onValueChange={value => handleInputChange('trending', value)}
+                    />
+                </View>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 32 }}>
+                <Button title="Cancel" onPress={onCancel} color="#888" />
+                {isLoading ? (
+                    <ActivityIndicator size="small" color="#0000ff" />
+                ) : (
+                    <Button
+                        title={isEditing ? 'Update Campaign' : 'Create Campaign'}
+                        onPress={isPaying ? handleSubmit : () => {
+                            Alert.alert("Upgrade Required", "You need to pay for the system to create campaigns.", [
+                                { text: "Cancel", style: "cancel" },
+                                { text: "Upgrade", onPress: () => router.push('/billing') }
+                            ]);
+                        }}
+                        disabled={!isPaying}
+                    />
                 )}
             </View>
-        </ScrollView>
+            {!isPaying && (
+                <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>
+                    * Upgrade to premium to create or edit campaigns
+                </Text>
+            )}
+        </ScrollView >
     );
 }
 
@@ -334,5 +338,11 @@ const styles = StyleSheet.create({
         height: 40,
         fontSize: 16,
     },
+    backButton: {
+        padding: 4,
+        borderRadius: 20,
+        backgroundColor: '#f0f0f0',
+    },
 });
+
 

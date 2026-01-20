@@ -2,6 +2,7 @@ import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import IUser from '@/interface/user.interface';
 import { collection, doc, DocumentData, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { handleError } from '../error-handler';
 
 const usersRef = collection(db, DBcollections.USERS);
 
@@ -17,7 +18,7 @@ const getUsersList = async (): Promise<IUser[] | undefined> => {
 
         return users
     } catch (error) {
-        console.log({ error })
+        handleError(error, 'Get Users Error');
     }
 }
 

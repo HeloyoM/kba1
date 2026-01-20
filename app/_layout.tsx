@@ -1,4 +1,5 @@
 import { AppUserProvider } from '@/context/auth.context';
+import { ToastProvider } from '@/context/toast.context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -25,14 +26,16 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AppUserProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-            <Stack.Screen name="auth" options={{ presentation: 'card', title: 'Auth' }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </AppUserProvider>
+        <ToastProvider>
+          <AppUserProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+              <Stack.Screen name="auth" options={{ presentation: 'card', title: 'Auth' }} />
+            </Stack>
+            <StatusBar style="auto" />
+          </AppUserProvider>
+        </ToastProvider>
       </ThemeProvider >
     </SafeAreaProvider>
   );

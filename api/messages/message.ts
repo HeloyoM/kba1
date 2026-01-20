@@ -3,6 +3,7 @@ import { mockMessages } from '@/data/mock-messages';
 import { IMessage } from '@/interface/message.interface';
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { DBcollections } from '../../constants/DBcollections';
+import { handleError } from '../error-handler';
 
 
 const getMessagesList = async (): Promise<IMessage[]> => {
@@ -17,7 +18,7 @@ const getMessagesList = async (): Promise<IMessage[]> => {
 
         return messages
     } catch (error) {
-        console.error("Error fetching messages:", error);
+        handleError(error, 'Fetch Messages Error');
         return [];
     }
 }
@@ -29,7 +30,7 @@ const addMessage = async (message: Omit<IMessage, 'id'>): Promise<IMessage> => {
         console.log("Message created with ID: ", docRef.id);
         return { id: docRef.id, ...message };
     } catch (error) {
-        console.error("Error adding message: ", error);
+        handleError(error, 'Add Message Error');
         throw error;
     }
 }
@@ -40,7 +41,7 @@ const updateMessage = async (id: string, data: Partial<IMessage>): Promise<void>
         await updateDoc(messageRef, data);
         console.log("Message updated successfully");
     } catch (error) {
-        console.error("Error updating message: ", error);
+        handleError(error, 'Update Message Error');
         throw error;
     }
 }
@@ -50,7 +51,7 @@ const deleteMessage = async (id: string): Promise<void> => {
         await deleteDoc(doc(db, DBcollections.MESSAGES, id));
         console.log("Message deleted successfully");
     } catch (error) {
-        console.error("Error deleting message: ", error);
+        handleError(error, 'Delete Message Error');
         throw error;
     }
 }
