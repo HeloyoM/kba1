@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import IUser from '@/interface/user.interface';
-import { collection, doc, DocumentData, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { collection, doc, DocumentData, getDoc, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { handleError } from '../error-handler';
 
 const usersRef = collection(db, DBcollections.USERS);
@@ -99,9 +99,22 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
 }
 
 
+const getUserById = async (id: string): Promise<IUser | undefined> => {
+    try {
+        const docSnap = await getDoc(doc(db, DBcollections.USERS, id));
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() } as IUser;
+        }
+    } catch (error) {
+        handleError(error, 'Get User By ID Error');
+    }
+    return undefined;
+}
+
+
 export {
     formatAssignedUser,
-    formatUser, getUserByEmailAdd, getUsersList,
+    formatUser, getUserByEmailAdd, getUserById, getUsersList,
     insertUser,
     updateUser
 };

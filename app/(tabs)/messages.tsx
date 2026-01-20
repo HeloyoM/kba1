@@ -1,22 +1,38 @@
+import { addMessage, getMessagesList } from '@/api/messages/message';
 import AdminMessageForm from '@/components/AdminMessageForm';
 import MessageCard from '@/components/Messages/MessageCard';
 import MessageDetail from '@/components/Messages/MessageDetail';
-import { mockMessages } from '@/data/mock-messages';
 import { IMessage } from '@/interface/message.interface';
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Messages() {
-    const [messages, setMessages] = useState(mockMessages);
+    const [messages, setMessages] = useState<IMessage[]>([]);
     const [openForm, setOpenForm] = useState(false);
     const [filterUnread, setFilterUnread] = useState(false);
     const [displayCount, setDisplayCount] = useState(5);
     const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const handleRefresh = () => { };
+    const fetchMessages = useCallback(async () => {
+        setIsRefreshing(true);
+        try {
+            const data = await getMessagesList();
+            setMessages(data);
+        } finally {
+            setIsRefreshing(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchMessages();
+    }, [fetchMessages]);
+
+    const handleRefresh = () => {
+        fetchMessages();
+    };
 
     const handleToggleRead = (id: string) => {
         setMessages((prev) =>
@@ -27,9 +43,15 @@ export default function Messages() {
         }
     };
 
-    const handleNewMessage = (newMsg: Partial<IMessage>) => {
-
-    }
+    const handleNewMessage = async (newMsg: Partial<IMessage>) => {
+        try {
+            const result = await addMessage(newMsg as Omit<IMessage, 'id'>);
+            setMessages((prev) => [result, ...prev]);
+            console.log("New message added successfully:", result.id);
+        } catch (error) {
+            console.error("Failed to add message:", error);
+        }
+    };
 
     const filtered = filterUnread
         ? messages.filter((m) => !m.isRead)
