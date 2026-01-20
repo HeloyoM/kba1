@@ -4,7 +4,7 @@ export interface IMessage {
     title: string;
     content: string;
     image?: string;
-    author: string;
+    author: string | IAuthor;
     createdAt: number;
     hasAttachment: boolean;
     attachment?: {
@@ -14,3 +14,10 @@ export interface IMessage {
     };
     preview: string;
 }
+
+export interface IAuthor {
+    id: string;
+    name: string;
+    avatar: string;
+}
+

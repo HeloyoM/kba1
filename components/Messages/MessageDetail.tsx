@@ -17,6 +17,8 @@ const MessageDetail = ({ message, onClose, onToggleRead }: MessageDetailProps) =
 
     const hasImage: boolean = !!message?.image;
 
+    const author = typeof message?.author === 'object' ? message.author : null;
+
     return (
         <View style={styles.overlay}>
             <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
@@ -30,13 +32,13 @@ const MessageDetail = ({ message, onClose, onToggleRead }: MessageDetailProps) =
                 <View style={styles.header}>
                     <View style={styles.headerLeft}>
                         <Image
-                            source={{ uri: message?.image || '' }}
+                            source={{ uri: author?.avatar || 'https://via.placeholder.com/50' }}
                             style={styles.avatar}
                         />
 
                         <View>
                             <Text style={styles.adminName}>
-                                {message?.author || ''}
+                                {author?.name || (typeof message?.author === 'string' ? message.author : '')}
                             </Text>
 
                             <View style={styles.timeRow}>

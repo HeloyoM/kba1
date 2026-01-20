@@ -1,6 +1,7 @@
-import { IMessage } from '@/app/(tabs)/messages'
+
 import { IconSymbol } from '@/components/ui/icon-symbol'
 import { Colors } from '@/constants/theme'
+import { IMessage } from '@/interface/message.interface'
 import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native'
 
@@ -13,6 +14,8 @@ const MessageCard = ({ message, onPress }: Props) => {
     const colorScheme = useColorScheme() ?? 'light'
     const colors = Colors[colorScheme]
     const { date, time } = convertTimestamp(message.createdAt)
+
+    const author = typeof message.author === 'object' ? message.author : null;
 
     return (
         <TouchableOpacity
@@ -32,7 +35,7 @@ const MessageCard = ({ message, onPress }: Props) => {
             <View style={styles.headerRow}>
                 <View style={styles.avatarContainer}>
                     <Image
-                        source={{ uri: message.admin?.avatar || 'https://via.placeholder.com/50' }}
+                        source={{ uri: author?.avatar || 'https://via.placeholder.com/50' }}
                         style={styles.avatar}
                     />
                     {!message.isRead && <View style={styles.unreadIndicator} />}
@@ -41,7 +44,7 @@ const MessageCard = ({ message, onPress }: Props) => {
                 <View style={styles.headerTextContainer}>
                     <View style={styles.nameRow}>
                         <Text style={[styles.name, { color: colors.text }]}>
-                            {message.author}
+                            {author?.name || (typeof message.author === 'string' ? message.author : 'Unknown Author')}
                         </Text>
                         {message.isRead && (
                             <IconSymbol size={14} name="checkmark.circle.fill" color="#10B981" />

@@ -1,21 +1,52 @@
 import { db } from '@/config/firebase';
 import { mockMessages } from '@/data/mock-messages';
-import { IMessage } from '@/interface/message.interface';
+import { IAuthor, IMessage } from '@/interface/message.interface';
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { DBcollections } from '../../constants/DBcollections';
+import { getUserById, getUsersList } from '../auth/users';
 import { handleError } from '../error-handler';
 
 
 const getMessagesList = async (): Promise<IMessage[]> => {
     console.log(`fetching messages list from DB...`)
     try {
-        const querySnapshot = await getDocs(collection(db, DBcollections.MESSAGES));
+        const [messagesSnapshot, users] = await Promise.all([
+            getDocs(collection(db, DBcollections.MESSAGES)),
+            getUsersList()
+        ]);
+
+        const authorsMap: Record<string, IAuthor> = {};
+
+        // Build a map of all users for quick lookup
+        if (users) {
+            users.forEach(user => {
+                const authorId = user.uid || user.id;
+                authorsMap[authorId] = {
+                    id: authorId,
+                    name: user.givenName || user.name || 'Anonymous',
+                    avatar: user.photoUrl || 'https://via.placeholder.com/150'
+                };
+            });
+        }
+
         const messages: IMessage[] = []
 
-        querySnapshot.forEach((doc) => {
-            messages.push({ id: doc.id, ...doc.data() } as IMessage);
+        messagesSnapshot.forEach((doc) => {
+            const data = doc.data();
+            const authorId = data.author;
+
+            const resolvedAuthor: IAuthor = typeof authorId === 'string'
+                ? (authorsMap[authorId] || {
+                    id: authorId,
+                    name: 'Unknown User',
+                    avatar: 'https://via.placeholder.com/150'
+                })
+                : authorId; // In case it's already an object (legacy/mock)
+
+            messages.push({ ...data, id: doc.id, author: resolvedAuthor } as IMessage);
         });
 
+        console.log({ messages })
         return messages
     } catch (error) {
         handleError(error, 'Fetch Messages Error');
@@ -26,9 +57,25 @@ const getMessagesList = async (): Promise<IMessage[]> => {
 
 const addMessage = async (message: Omit<IMessage, 'id'>): Promise<IMessage> => {
     try {
-        const docRef = await addDoc(collection(db, DBcollections.MESSAGES), message);
+        // Convert IAuthor back to string (id) for storage
+        const authorId = typeof message.author === 'object' ? message.author.id : message.author;
+        const firestoreData = { ...message, author: authorId };
+
+        const docRef = await addDoc(collection(db, DBcollections.MESSAGES), firestoreData);
         console.log("Message created with ID: ", docRef.id);
-        return { id: docRef.id, ...message };
+
+        // Resolve author detail for the returned object
+        let resolvedAuthor = message.author as IAuthor;
+        if (typeof message.author === 'string') {
+            const user = await getUserById(message.author);
+            resolvedAuthor = {
+                id: message.author,
+                name: user?.givenName || user?.name || 'Anonymous',
+                avatar: user?.photoUrl || 'https://via.placeholder.com/150'
+            };
+        }
+
+        return { id: docRef.id, ...message, author: resolvedAuthor } as IMessage;
     } catch (error) {
         handleError(error, 'Add Message Error');
         throw error;
@@ -63,7 +110,14 @@ const migrationFunc = async (): Promise<void> => {
             console.log(`Pushing message ${msg.id} to firestore...`)
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...messageData } = msg;
-            const result = await addDoc(collection(db, DBcollections.MESSAGES), messageData);
+
+            // Ensure author is stored as an ID string
+            const firestoreData = {
+                ...messageData,
+                author: typeof msg.author === 'object' ? msg.author.id : msg.author
+            };
+
+            const result = await addDoc(collection(db, DBcollections.MESSAGES), firestoreData);
             if (result.id) {
                 console.log(`Message ${msg.id} successfully migrated to Firestore with new ID: ${result.id}`)
             }
@@ -77,3 +131,4 @@ const migrationFunc = async (): Promise<void> => {
 export {
     addMessage, deleteMessage, getMessagesList, migrationFunc, updateMessage
 };
+
