@@ -156,7 +156,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
     };
 
     // photo grid: show up to 6 by default (or all if toggled)
-    const photosToShow = showAllPhotos ? event.pastPhotos : event.pastPhotos.slice(0, 6);
+    const photosToShow = event.pastPhotos ? (showAllPhotos ? event.pastPhotos : event.pastPhotos.slice(0, 6)) : [];
 
     return (
         <>
@@ -277,7 +277,7 @@ export function EventDetails({ event, onBack }: EventDetailsProps) {
                     <View style={[styles.card, styles.cardLight]}>
                         <Text style={[styles.sectionTitle, styles.textDark]}>Event Schedule</Text>
                         <View style={styles.scheduleWrap}>
-                            {event.schedule.map((item, index) => (
+                            {event.schedule && event.schedule.map((item, index) => (
                                 <View key={index} style={styles.scheduleRow}>
                                     <View style={styles.scheduleMarkerColumn}>
                                         <View style={styles.scheduleDot} />

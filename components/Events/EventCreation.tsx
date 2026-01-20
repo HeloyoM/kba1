@@ -1,4 +1,4 @@
-import { insertEvet } from "@/api/events/events";
+import { insertEvent } from "@/api/events/events";
 import { useAppUser } from "@/context/auth.context";
 import { useToast } from "@/context/toast.context";
 import { IEvent } from "@/interface/events.interface";
@@ -41,7 +41,7 @@ export default function EventCreation({
         time: Timestamp.now(),
         location: "",
         isOnline: false,
-        category: "",
+        category: "Social",
         capacity: 0,
         coverImage: "",
     });
@@ -62,13 +62,46 @@ export default function EventCreation({
         "Social",
     ];
 
-    const handleEventCreated = () => {
-        Alert.alert("Event Created", `${formData.title} has been published.`);
-        showSuccess("Event created!");
-        const newEvent = formData
-        insertEvet(newEvent)
+    const handleEventCreated = async () => {
+        if (!formData.title || !formData.description) {
+            Alert.alert("Error", "Please fill in all required fields.");
+            return;
+        }
 
-        // setCurrentView("feed");
+        const newEvent: Partial<IEvent> = {
+            ...formData,
+            fullDescription: formData.description, // For now, use same as description
+            organizer: {
+                name: user?.name || user?.email || "Community Member",
+                avatar: user?.photoUrl || "",
+                contact: user?.email || "",
+            },
+            attendees: 0,
+            interested: 0,
+            pastPhotos: [],
+            comments: [],
+            schedule: scheduleItems
+                .filter(item => item.time && item.activity)
+                .map(item => {
+                    const [h, m] = item.time.split(':');
+                    const d = new Date();
+                    d.setHours(parseInt(h) || 0, parseInt(m) || 0, 0, 0);
+                    return {
+                        time: Timestamp.fromDate(d),
+                        activity: item.activity
+                    };
+                }),
+        };
+
+        try {
+            await insertEvent(newEvent);
+            Alert.alert("Event Created", `${formData.title} has been published.`);
+            showSuccess("Event created!");
+            onCancel(); // Go back to feed
+        } catch (error) {
+            console.error("Failed to create event:", error);
+            Alert.alert("Error", "Failed to create event. Please try again.");
+        }
     };
 
     const updateScheduleItem = (
@@ -130,8 +163,13 @@ export default function EventCreation({
                         <Text style={styles.label}>Date *</Text>
                         <TextInput
                             style={styles.input}
-                            value={formData.date?.toDate().toISOString().split('T')[0]}
-                            onChangeText={(v) => setFormData({ ...formData, date: Timestamp.fromDate(new Date(v)) })}
+                            value={formData.date ? dayjs(formData.date.toDate()).format('YYYY-MM-DD') : ''}
+                            onChangeText={(v) => {
+                                const newDate = dayjs(v);
+                                if (newDate.isValid()) {
+                                    setFormData({ ...formData, date: Timestamp.fromDate(newDate.toDate()) });
+                                }
+                            }}
                             placeholder="YYYY-MM-DD"
                             placeholderTextColor={styles.placeholder.color}
                         />
@@ -212,8 +250,8 @@ export default function EventCreation({
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
-                        value={dayjs(formData.capacity).format('DD/MM/YYYY')}
-                        onChangeText={(v) => setFormData({ ...formData, capacity: dayjs(v).valueOf() })}
+                        value={formData.capacity ? formData.capacity.toString() : ""}
+                        onChangeText={(v) => setFormData({ ...formData, capacity: parseInt(v) || 0 })}
                         placeholder="Unlimited"
                         placeholderTextColor={styles.placeholder.color}
                     />

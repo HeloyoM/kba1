@@ -41,11 +41,11 @@ const addEventComment = async (eventId: string, comment: any) => {
 }
 
 
-const insertEvet = async (newEvent: Partial<IEvent>) => {
+const insertEvent = async (newEvent: Partial<IEvent>) => {
     try {
         const result = await addDoc(eventsRef, newEvent);
         if (result.id) {
-            console.log(`new events is inserted successfully, with the given id: ${result.id}`)
+            console.log(`new event is inserted successfully, with the given id: ${result.id}`)
         }
     } catch (error) {
         handleError(error, 'Add Event Error');
@@ -71,5 +71,6 @@ const insertEvet = async (newEvent: Partial<IEvent>) => {
 export {
     addEventComment,
     getEventsList,
-    insertEvet
+    insertEvent
 };
+
