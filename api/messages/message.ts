@@ -6,12 +6,13 @@ import { DBcollections } from '../../constants/DBcollections';
 import { getUserById, getUsersList } from '../auth/users';
 import { handleError } from '../error-handler';
 
+const messagesRef = collection(db, DBcollections.MESSAGES);
 
 const getMessagesList = async (): Promise<IMessage[]> => {
     console.log(`fetching messages list from DB...`)
     try {
         const [messagesSnapshot, users] = await Promise.all([
-            getDocs(collection(db, DBcollections.MESSAGES)),
+            getDocs(messagesRef),
             getUsersList()
         ]);
 
@@ -61,7 +62,7 @@ const addMessage = async (message: Omit<IMessage, 'id'>): Promise<IMessage> => {
         const authorId = typeof message.author === 'object' ? message.author.id : message.author;
         const firestoreData = { ...message, author: authorId };
 
-        const docRef = await addDoc(collection(db, DBcollections.MESSAGES), firestoreData);
+        const docRef = await addDoc(messagesRef, firestoreData);
         console.log("Message created with ID: ", docRef.id);
 
         // Resolve author detail for the returned object
@@ -117,7 +118,7 @@ const migrationFunc = async (): Promise<void> => {
                 author: typeof msg.author === 'object' ? msg.author.id : msg.author
             };
 
-            const result = await addDoc(collection(db, DBcollections.MESSAGES), firestoreData);
+            const result = await addDoc(messagesRef, firestoreData);
             if (result.id) {
                 console.log(`Message ${msg.id} successfully migrated to Firestore with new ID: ${result.id}`)
             }
