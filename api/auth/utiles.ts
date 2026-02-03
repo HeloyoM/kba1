@@ -1,12 +1,12 @@
 import { getUserByEmailAdd } from './users';
 
-const userNotAssignedYet = async (email: string): Promise<boolean> => {
+const userDoesntExist = async (email: string): Promise<boolean> => {
     const user = await getUserByEmailAdd(email);
 
-    return user.empty;
+    return user.empty; /** True if there are no documents in the `QuerySnapshot`. */
 }
 
 
 export {
-    userNotAssignedYet
+    userDoesntExist
 }

@@ -15,7 +15,7 @@ import {
 } from "firebase/auth";
 import { handleError } from '../error-handler';
 import { formatAssignedUser, formatUser, insertUser } from './users';
-import { userNotAssignedYet } from './utiles';
+import { userDoesntExist } from './utiles';
 
 const login = async (): Promise<IUser | undefined> => {
     try {
@@ -29,7 +29,7 @@ const login = async (): Promise<IUser | undefined> => {
             await signInWithCredential(auth, googleCredential);
 
             const user = formatUser(response.data.user)
-            if (await userNotAssignedYet(user.email)) {
+            if (await userDoesntExist(user.email)) {
                 await insertUser(user);
             }
 
@@ -71,7 +71,7 @@ const createWithEmailPasswrodMethod = async (credentials: { email: string, passw
 
         const user = formatUser({ id: result.uid, email: credentials.email }, result.uid)
 
-        if (await userNotAssignedYet(credentials.email)) {
+        if (await userDoesntExist(credentials.email)) {
             await insertUser(user);
         }
 
@@ -110,7 +110,7 @@ const signInAnonymouslyMethod = async (): Promise<IUser | undefined> => {
             familyName: 'User'
         }, result.uid);
 
-        if (await userNotAssignedYet(user.email)) {
+        if (await userDoesntExist(user.email)) {
             await insertUser(user);
         }
 
