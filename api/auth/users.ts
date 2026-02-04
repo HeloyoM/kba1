@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase';
 import { DBcollections } from '@/constants/DBcollections';
 import IUser from '@/interface/user.interface';
-import { collection, doc, DocumentData, getDoc, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, DocumentData, getDoc, getDocs, query, QuerySnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { handleError } from '../error-handler';
 
 const usersRef = collection(db, DBcollections.USERS);
@@ -31,7 +31,8 @@ const getUserByEmailAdd = async (email: string): Promise<QuerySnapshot<DocumentD
 }
 
 const insertUser = async (user: IUser): Promise<void> => {
-    await setDoc(doc(db, DBcollections.USERS, user.id), user)
+    // await setDoc(doc(db, DBcollections.USERS, user.id), user)
+    await addDoc(usersRef, user)
 }
 
 const updateUser = async (user: Partial<IUser>): Promise<void> => {
@@ -94,7 +95,7 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
         birthday: '',
         location: '',
     };
-    console.log({ formattedUser })
+
     return formattedUser
 }
 
