@@ -1,4 +1,4 @@
-import { createWithEmailPasswrodMethod, signInAnonymouslyMethod } from '@/api/auth/auth';
+import { createWithEmailPasswrodMethod } from '@/api/auth/auth';
 import { useAppUser } from '@/context/auth.context';
 import IUser from '@/interface/user.interface';
 import { useRouter } from 'expo-router';
@@ -33,21 +33,6 @@ const SignupForm = () => {
     }
   }
 
-  const handleGuestSignIn = async () => {
-    setLoading(true);
-    try {
-      const data = await signInAnonymouslyMethod();
-      if (data) {
-        setUser(data);
-        setTimeout(() => {
-          setLoading(false);
-          router.replace('/(tabs)/profile');
-        }, appStaticConfig.pages.login_timeout);
-      }
-    } catch (error) {
-      setLoading(false);
-    }
-  }
 
   return (
     <View style={styles.signupFormContainer}>
@@ -83,19 +68,6 @@ const SignupForm = () => {
           ]}
         >
           <Text style={styles.buttonLabel}>Sign Up</Text>
-        </Pressable>
-
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <Pressable
-          onPress={handleGuestSignIn}
-          style={styles.guestButton}
-        >
-          <Text style={styles.guestButtonLabel}>Continue as Guest</Text>
         </Pressable>
       </View>
     </View>
