@@ -5,7 +5,7 @@ import { Check, Edit2, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { InputRow } from "./InputRow";
-
+        
 type FieldName = "email" | "phone" | "location" | "birthday";
 
 
