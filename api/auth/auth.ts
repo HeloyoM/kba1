@@ -13,8 +13,9 @@ import {
     signInWithEmailAndPassword,
     User
 } from "firebase/auth";
+import { serverTimestamp } from 'firebase/firestore';
 import { handleError } from '../error-handler';
-import { formatAssignedUser, formatUser, insertUser } from './users';
+import { formatAssignedUser, formatUser, getUserById, insertUser, updateUser } from './users';
 import { userDoesntExist } from './utiles';
 
 const login = async (): Promise<IUser | undefined> => {
@@ -27,12 +28,14 @@ const login = async (): Promise<IUser | undefined> => {
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             await signInWithCredential(auth, googleCredential);
-            
+
             const user = formatUser(response.data.user, auth.currentUser?.uid)
-            
+
             if (await userDoesntExist(user.email)) {
                 await insertUser(user);
             }
+
+            await updateUser({ uid: auth.currentUser?.uid, last_login: user.last_login });
 
             return await formatAssignedUser(response.data.user);
         }
@@ -99,15 +102,31 @@ const verifyEmail = () => {
     }
 }
 
+const generateUniqueGuestName = () => {
+    const randomNum = Math.floor(1000 + Math.random() * 9000); // 4-digit number
+    return `Guest #${randomNum}`;
+}
+
 const signInAnonymouslyMethod = async (): Promise<IUser | undefined> => {
     try {
         const userCredential = await signInAnonymously(auth);
         const result: User = userCredential.user;
 
+        // Check if user already exists by UID
+        const existingUser = await getUserById(result.uid);
+
+        if (existingUser) {
+            // Update last login
+            await updateUser({ uid: result.uid, last_login: serverTimestamp() });
+            return existingUser;
+        }
+
+        // New guest user
+        const guestName = generateUniqueGuestName();
         const user = formatUser({
             id: result.uid,
-            email: 'guest@community.com',
-            name: 'Guest',
+            email: `guest_${result.uid}@community.com`, // Unique guest email based on UID
+            name: guestName,
             familyName: 'User'
         }, result.uid);
 

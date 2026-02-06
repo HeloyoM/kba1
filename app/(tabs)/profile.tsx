@@ -1,3 +1,4 @@
+import FileManagementSection from "@/components/PersonalArea/FileManagementSection";
 import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from "@/context/auth.context";
@@ -26,6 +27,7 @@ const Profile = () => {
 
             <ScrollView contentContainerStyle={styles.content}>
                 <ProfileHeader />
+                <FileManagementSection />
                 {/* <PersonalInfoSection />
                 <AccountSettingsSection />
                 <ActivityOverview />

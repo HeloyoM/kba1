@@ -9,6 +9,8 @@ import Animated, {
 import { styles } from './Auth.styles';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
+import { useRouter } from 'expo-router';
+import { appStaticConfig } from '@/constants/config';
 
 const COLLAPSED_HEIGHT = 0;
 const LOGIN_HEIGHT = 410;
@@ -20,6 +22,7 @@ const Auth = () => {
     const { setUser } = useAppUser();
     const [expandedForm, setExpandedForm] = useState<'login' | 'signup' | null>(null);
     const [isGuestLoading, setIsGuestLoading] = useState(false);
+    const router = useRouter();
 
     const animatedLoginStyle = useAnimatedStyle(() => ({
         height: withTiming(expandedForm === 'login' ? LOGIN_HEIGHT : COLLAPSED_HEIGHT, TIMING_CONFIG),
@@ -43,9 +46,15 @@ const Auth = () => {
         try {
             setIsGuestLoading(true);
             const user = await signInAnonymouslyMethod();
+
             if (user) {
                 setUser(user);
+
+                setTimeout(() => {
+                    router.replace('/(tabs)');
+                }, appStaticConfig.pages.login_timeout)
             }
+
         } catch (error) {
             console.error('Guest login failed:', error);
         } finally {
