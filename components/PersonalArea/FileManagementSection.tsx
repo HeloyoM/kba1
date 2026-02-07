@@ -4,8 +4,10 @@ import { useState } from "react";
 import { colors } from "@/utils/colors";
 import { IUserFile, getUserFiles, uploadFile, deleteFile } from '@/api/storage/storage';
 import * as DocumentPicker from 'expo-document-picker';
+import { useAppUser } from '@/context/auth.context';
 
 const FileManagementSection = () => {
+    const { user } = useAppUser();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -15,42 +17,42 @@ const FileManagementSection = () => {
     const isDark = colorScheme === 'dark';
     const theme = isDark ? darkStyles : lightStyles;
 
-    // const handleUpload = async () => {
-    //     if (!user?.uid) return;
+    const handleUpload = async () => {
+        if (!user?.uid) return;
 
-    //     try {
-    //         const result = await DocumentPicker.getDocumentAsync({
-    //             type: "*/*",
-    //             copyToCacheDirectory: true,
-    //         });
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "*/*",
+                copyToCacheDirectory: true,
+            });
 
-    //         if (result.canceled) return;
+            if (result.canceled) return;
 
-    //         const asset = result.assets[0];
-    //         setUploading(true);
-    //         setUploadProgress(0);
+            const asset = result.assets[0];
+            setUploading(true);
+            setUploadProgress(0);
 
-    //         // Fetch the file and create a blob
-    //         const response = await fetch(asset.uri);
-    //         const blob = await response.blob();
+            // Fetch the file and create a blob
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
 
-    //         const newFile = await uploadFile(
-    //             blob,
-    //             asset.name,
-    //             user.uid,
-    //             (progress) => setUploadProgress(progress)
-    //         );
+            const newFile = await uploadFile(
+                blob,
+                asset.name,
+                user.uid,
+                (progress) => setUploadProgress(progress)
+            );
 
-    //         setFiles(prev => [newFile, ...prev]);
-    //         Alert.alert("Success", "File uploaded successfully");
-    //     } catch (error) {
-    //         console.error("Upload handler error:", error);
-    //         Alert.alert("Error", "Failed to upload file");
-    //     } finally {
-    //         setUploading(false);
-    //         setUploadProgress(0);
-    //     }
-    // };
+            setFiles(prev => [newFile, ...prev]);
+            Alert.alert("Success", "File uploaded successfully");
+        } catch (error) {
+            console.error("Upload handler error:", error);
+            Alert.alert("Error", "Failed to upload file");
+        } finally {
+            setUploading(false);
+            setUploadProgress(0);
+        }
+    };
 
 
     const handleDelete = (fileId: string, path: string) => {
@@ -114,7 +116,7 @@ const FileManagementSection = () => {
                 <Text style={[styles.title, theme.text]}>My Documents</Text>
                 <TouchableOpacity
                     style={styles.addBtn}
-                    // onPress={handleUpload}
+                    onPress={handleUpload}
                     disabled={uploading}
                 >
                     <Plus size={20} color="#fff" />

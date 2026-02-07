@@ -15,7 +15,7 @@ import {
 } from "firebase/auth";
 import { handleError } from '../error-handler';
 import { formatAssignedUser, formatUser, getUserById, insertUser, updateUser } from './users';
-import { userDoesntExist } from './utiles';
+import { updateLastLogin, userDoesntExist } from './utiles';
 import { serverTimestamp } from 'firebase/firestore';
 
 const login = async (): Promise<IUser | undefined> => {
@@ -27,15 +27,21 @@ const login = async (): Promise<IUser | undefined> => {
             const idToken = response.data.idToken;
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
-            await signInWithCredential(auth, googleCredential);
+            const result = await signInWithCredential(auth, googleCredential);
+            const uid = (await result.user.getIdTokenResult()).claims.sub
 
-            const user = formatUser(response.data.user, auth.currentUser?.uid)
+            const user = formatUser(response.data.user, uid)
 
             if (await userDoesntExist(user.email)) {
                 await insertUser(user);
             }
 
-            return await formatAssignedUser(response.data.user);
+            if (uid) {
+                await updateLastLogin(uid);
+
+                return await formatAssignedUser(response.data.user);
+            }
+
         }
 
     } catch (error) {
@@ -115,7 +121,8 @@ const signInAnonymouslyMethod = async (): Promise<IUser | undefined> => {
 
         if (existingUser) {
             // Update last login
-            await updateUser({ uid: result.uid, last_login: serverTimestamp() });
+            await updateLastLogin(result.uid);
+
             return existingUser;
         }
 
