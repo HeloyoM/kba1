@@ -16,6 +16,7 @@ const updateLastLogin = async (uid: string) => {
         
     }
 }
+
 export {
     userDoesntExist,
     updateLastLogin

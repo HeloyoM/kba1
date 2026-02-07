@@ -28,8 +28,8 @@ const login = async (): Promise<IUser | undefined> => {
             const googleCredential = GoogleAuthProvider.credential(idToken);
 
             const result = await signInWithCredential(auth, googleCredential);
-            const uid = (await result.user.getIdTokenResult()).claims.sub
-
+            const uid = result.user.uid;
+            
             const user = formatUser(response.data.user, uid)
 
             if (await userDoesntExist(user.email)) {
