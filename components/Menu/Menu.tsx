@@ -1,4 +1,5 @@
 import { getCampaignsList } from "@/api/campaigns/campaigns";
+import { useAppUser } from "@/context/auth.context";
 import { CampaignTypeEnum } from "@/interface/campaign.interface";
 import { colors } from "@/utils/colors";
 import { useRouter } from "expo-router";
@@ -67,7 +68,15 @@ const Menu = () => {
         fetchCampaigns();
     }, []);
 
+    const { user } = useAppUser();
+
     const demo = [
+        ...(user?.role === 'admin' ? [{
+            title: 'Admin Panel',
+            subtitle: 'Manage users and permissions',
+            accent: colors.blue,
+            path: '/admin'
+        }] : []),
         {
             title: 'New Event',
             subtitle: <DynamicSubtitle prefix="Organize" words={eventWords} color={colors.pink} />,

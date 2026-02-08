@@ -17,4 +17,7 @@ export default interface IUser {
     location?: string;
     birthday?: string;
     bio?: string;
+    lastActive?: FieldValue;
+    totpSecret?: string;
 }
+
