@@ -5,12 +5,12 @@ import { useToast } from '@/context/toast.context';
 import IUser from '@/interface/user.interface';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
-import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
+import { AuthErrorCodes } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
+import GoogleLogo from './GoogleLogo';
 import { styles } from './LoginForm.styles';
-import { AuthErrorCodes } from 'firebase/auth';
 
 const LoginForm = () => {
     const router = useRouter();
@@ -83,11 +83,8 @@ const LoginForm = () => {
                             }
                         ]}
                     >
-                        <GoogleSigninButton
-                            color={'dark'}
-                            style={{ width: '100%', height: 48 }}
-                            pointerEvents="none"
-                        />
+                        <GoogleLogo size={20} />
+                        <Text style={styles.googleButtonText}>Continue with Google</Text>
                     </Pressable>)
                 }
 

@@ -21,7 +21,20 @@ export const styles = StyleSheet.create({
         marginBottom: 20,
     },
     googleButton: {
-        width: '50%',
+        width: '95%',
+        height: 48,
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        marginBottom: 10,
+    },
+    googleButtonText: {
+        color: '#000',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     cell: {
         width: '45%',
