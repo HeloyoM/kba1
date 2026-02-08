@@ -68,6 +68,8 @@ const formatAssignedUser = async (user: { email: string; name?: string | null; f
             subscriptionExpires: userInfo.subscriptionExpires,
             birthday: userInfo.birthday || '',
             location: userInfo.location || '',
+            lastActive: userInfo.lastActive || null,
+            totpSecret: userInfo.totpSecret || '',
         };
         return formattedUser
     } else {
@@ -112,11 +114,32 @@ const getUserById = async (id: string): Promise<IUser | undefined> => {
     return undefined;
 }
 
+const updateSubscriptionExpiry = async (uid: string, days: number): Promise<void> => {
+    try {
+        const user = await getUserById(uid);
+        if (!user) throw new Error("User not found");
+
+        const currentExpiry = user.subscriptionExpires > Date.now() ? user.subscriptionExpires : Date.now();
+        const newExpiry = currentExpiry + (days * 24 * 60 * 60 * 1000);
+
+        await updateUser({ uid, subscriptionExpires: newExpiry, isPaying: true });
+    } catch (error) {
+        handleError(error, 'Update Subscription Error');
+    }
+}
+
+const updateLastActive = async (uid: string): Promise<void> => {
+    try {
+        await updateUser({ uid, lastActive: serverTimestamp() });
+    } catch (error) {
+        // Silent error for background activity
+    }
+}
+
 
 export {
     formatAssignedUser,
     formatUser, getUserByEmailAdd, getUserById, getUsersList,
-    insertUser,
-    updateUser
+    insertUser, updateLastActive, updateSubscriptionExpiry, updateUser
 };
 
