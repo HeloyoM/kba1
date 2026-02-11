@@ -123,7 +123,7 @@ export default function Messages() {
                                 width: layout.width,
                                 height: layout.height
                             });
-                        }}
+                        }}  
                     >
                         <Feather name="plus" size={22} color="#fff" />
                     </TouchableOpacity>
@@ -214,7 +214,7 @@ export default function Messages() {
                             onLayout={(e) => {
                                 const layout = e.nativeEvent.layout;
                                 registerLayout('messages_load_more', {
-                                    x: layout.x + 16,
+                                    x: layout.x + 800,
                                     y: 600, // Approximate position at footer
                                     width: layout.width,
                                     height: layout.height

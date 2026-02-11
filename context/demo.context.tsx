@@ -50,7 +50,7 @@ export const steps: DemoStep[] = [
         targetId: 'messages_feed',
         text: 'Here you can make long press on the messages and mark it as read/unread.',
         page: '/messages',
-        position: 'bottom',
+        position: 'top',
     },
     {
         targetId: 'messages_load_more',
@@ -62,7 +62,7 @@ export const steps: DemoStep[] = [
         targetId: 'community_header',
         text: 'This is the Community section where all active campaigns are displayed.',
         page: '/community',
-        position: 'bottom',
+        position: 'top',
     },
     {
         targetId: 'community_new_campaign',

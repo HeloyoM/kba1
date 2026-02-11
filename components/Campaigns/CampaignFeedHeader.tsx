@@ -13,15 +13,6 @@ export function CampaignFeedHeader({ onCreate }: CampaignFeedHeaderProps) {
         <View style={styles.header}>
             <Text
                 style={styles.title}
-                onLayout={(e) => {
-                    const layout = e.nativeEvent.layout;
-                    registerLayout('community_header', {
-                        x: layout.x,
-                        y: layout.y + 110, // Approximate header offset
-                        width: layout.width,
-                        height: layout.height
-                    });
-                }}
             >
                 Campaigns
             </Text>
