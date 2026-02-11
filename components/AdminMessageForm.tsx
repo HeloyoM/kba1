@@ -61,6 +61,7 @@ const AdminMessageForm = (props: AdminMessageFormProps) => {
                                 placeholder="Message Title"
                                 value={title}
                                 onChangeText={setTitle}
+                                placeholderTextColor={'#000'}
                             />
                         </View>
 
@@ -73,6 +74,7 @@ const AdminMessageForm = (props: AdminMessageFormProps) => {
                                 onChangeText={setContent}
                                 multiline
                                 numberOfLines={4}
+                                placeholderTextColor={'#000'}
                             />
                         </View>
 
@@ -83,6 +85,7 @@ const AdminMessageForm = (props: AdminMessageFormProps) => {
                                 placeholder="Short preview text"
                                 value={preview}
                                 onChangeText={setPreview}
+                                placeholderTextColor={'#000'}
                             />
                         </View>
 
@@ -149,7 +152,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 12,
         fontSize: 15,
-        color: '#111',
+        color: 'black'
     },
     textArea: {
         minHeight: 100,

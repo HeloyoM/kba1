@@ -15,7 +15,7 @@ export default function AdminLoginScreen() {
     const [loading, setLoading] = useState(false);
 
     const handleVerify = async () => {
-        console.log(token, user?.totpSecret)
+
         if (token.length !== 6) {
             Alert.alert('Invalid Code', 'Please enter a 6-digit code.');
             return;
@@ -41,7 +41,7 @@ export default function AdminLoginScreen() {
             setLoading(false);
         }
     };
-    console.log({ token })
+    
     return (
         <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
             <View style={styles.content}>

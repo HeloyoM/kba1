@@ -8,9 +8,11 @@ import { Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 
 type Props = {
     message: IMessage
     onPress: () => void
+    onLongPress?: () => void
+    isSelected?: boolean
 }
 
-const MessageCard = ({ message, onPress }: Props) => {
+const MessageCard = ({ message, onPress, onLongPress, isSelected }: Props) => {
     const colorScheme = useColorScheme() ?? 'light'
     const colors = Colors[colorScheme]
     const { date, time } = convertTimestamp(message.createdAt)
@@ -20,13 +22,14 @@ const MessageCard = ({ message, onPress }: Props) => {
     return (
         <TouchableOpacity
             onPress={onPress}
+            onLongPress={onLongPress}
             activeOpacity={0.8}
             style={[
                 styles.card,
                 {
-                    backgroundColor: colors.background,
-                    borderColor: message.isRead ? '#E5E7EB' : '#3B82F6',
-                    borderWidth: message.isRead ? 1 : 1.5,
+                    backgroundColor: isSelected ? '#EFF6FF' : colors.background,
+                    borderColor: isSelected ? '#3B82F6' : (message.isRead ? '#E5E7EB' : '#3B82F6'),
+                    borderWidth: (isSelected || !message.isRead) ? 1.5 : 1,
                 },
                 !message.isRead && styles.unreadShadow,
             ]}
@@ -46,8 +49,11 @@ const MessageCard = ({ message, onPress }: Props) => {
                         <Text style={[styles.name, { color: colors.text }]}>
                             {author?.name || (typeof message.author === 'string' ? message.author : 'Unknown Author')}
                         </Text>
-                        {message.isRead && (
+                        {message.isRead && !isSelected && (
                             <IconSymbol size={14} name="checkmark.circle.fill" color="#10B981" />
+                        )}
+                        {isSelected && (
+                            <IconSymbol size={20} name="checkmark.circle.fill" color="#3B82F6" />
                         )}
                     </View>
 

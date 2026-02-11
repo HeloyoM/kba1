@@ -1,4 +1,4 @@
-import { addMessage, getMessagesList } from '@/api/messages/message';
+import { addMessage, getMessagesList, updateMessage, updateMessagesStatus } from '@/api/messages/message';
 import AdminMessageForm from '@/components/AdminMessageForm';
 import MessageCard from '@/components/Messages/MessageCard';
 import MessageDetail from '@/components/Messages/MessageDetail';
@@ -15,6 +15,8 @@ export default function Messages() {
     const [displayCount, setDisplayCount] = useState(5);
     const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const isSelectionMode = selectedIds.size > 0;
 
     const fetchMessages = useCallback(async () => {
         setIsRefreshing(true);
@@ -34,12 +36,47 @@ export default function Messages() {
         fetchMessages();
     };
 
-    const handleToggleRead = (id: string) => {
+    const handleToggleRead = async (id: string, currentStatus?: boolean) => {
+        const newStatus = currentStatus !== undefined ? !currentStatus : !messages.find(m => m.id === id)?.isRead;
+
         setMessages((prev) =>
-            prev.map((m) => (m.id === id ? { ...m, isRead: !m.isRead } : m))
+            prev.map((m) => (m.id === id ? { ...m, isRead: newStatus } : m))
         );
         if (selectedMessage?.id === id) {
-            setSelectedMessage({ ...selectedMessage, isRead: !selectedMessage.isRead });
+            setSelectedMessage({ ...selectedMessage, isRead: newStatus });
+        }
+
+        try {
+            await updateMessage(id, { isRead: newStatus });
+        } catch (error) {
+            console.error("Failed to update message status:", error);
+            // Optionally rollback local state if needed
+        }
+    };
+
+    const handleToggleSelection = (id: string) => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const handleBulkToggleRead = async (isRead: boolean) => {
+        const ids = Array.from(selectedIds);
+        setMessages((prev) =>
+            prev.map((m) => (ids.includes(m.id) ? { ...m, isRead } : m))
+        );
+        setSelectedIds(new Set());
+
+        try {
+            await updateMessagesStatus(ids, isRead);
+        } catch (error) {
+            console.error("Failed to bulk update messages:", error);
         }
     };
 
@@ -60,7 +97,7 @@ export default function Messages() {
     const unreadCount = messages.filter((m) => !m.isRead).length;
     const displayed = filtered.slice(0, displayCount);
 
-    console.log({ openForm })
+
     return (
         <SafeAreaView style={[styles.container]} edges={['top']}>
             <View style={[styles.header]}>
@@ -123,7 +160,15 @@ export default function Messages() {
                 renderItem={({ item }) => (
                     <MessageCard
                         message={item}
-                        onPress={() => setSelectedMessage(item)}
+                        isSelected={selectedIds.has(item.id)}
+                        onPress={() => {
+                            if (isSelectionMode) {
+                                handleToggleSelection(item.id);
+                            } else {
+                                setSelectedMessage(item);
+                            }
+                        }}
+                        onLongPress={() => handleToggleSelection(item.id)}
                     />
                 )}
                 ListEmptyComponent={
@@ -146,6 +191,36 @@ export default function Messages() {
                     </TouchableOpacity>
                 }
             />
+
+            {isSelectionMode && (
+                <View style={styles.bulkActionBar}>
+                    <TouchableOpacity
+                        style={styles.bulkActionBtn}
+                        onPress={() => setSelectedIds(new Set())}
+                    >
+                        <Feather name="x" size={20} color="#666" />
+                        <Text style={styles.bulkActionText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <View style={{ flexDirection: 'row', gap: 12 }}>
+                        <TouchableOpacity
+                            style={[styles.bulkActionBtn, { backgroundColor: '#2563eb' }]}
+                            onPress={() => handleBulkToggleRead(true)}
+                        >
+                            <Feather name="check-circle" size={18} color="#fff" />
+                            <Text style={[styles.bulkActionText, { color: '#fff' }]}>Mark Read</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.bulkActionBtn, { backgroundColor: '#4b5563' }]}
+                            onPress={() => handleBulkToggleRead(false)}
+                        >
+                            <Feather name="circle" size={18} color="#fff" />
+                            <Text style={[styles.bulkActionText, { color: '#fff' }]}>Unread</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
             <Modal statusBarTranslucent visible={!!selectedMessage} animationType="slide">
                 <MessageDetail
                     message={selectedMessage}
@@ -231,5 +306,38 @@ const styles = StyleSheet.create({
     },
     loadMoreText: {
         color: '#333',
+    },
+    bulkActionBar: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+    },
+    bulkActionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        backgroundColor: '#f3f4f6',
+    },
+    bulkActionText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#4b5563',
     },
 });

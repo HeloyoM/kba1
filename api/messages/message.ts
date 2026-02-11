@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase';
 import { mockMessages } from '@/data/mock-messages';
 import { IAuthor, IMessage } from '@/interface/message.interface';
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc, writeBatch } from 'firebase/firestore';
 import { DBcollections } from '../../constants/DBcollections';
 import { getUserById, getUsersList } from '../auth/users';
 import { handleError } from '../error-handler';
@@ -43,7 +43,7 @@ const getMessagesList = async (): Promise<IMessage[]> => {
                     avatar: 'https://via.placeholder.com/150'
                 })
                 : authorId; // In case it's already an object (legacy/mock)
-
+ 
             messages.push({ ...data, id: doc.id, author: resolvedAuthor } as IMessage);
         });
 
@@ -104,6 +104,21 @@ const deleteMessage = async (id: string): Promise<void> => {
     }
 }
 
+const updateMessagesStatus = async (ids: string[], isRead: boolean): Promise<void> => {
+    try {
+        const batch = writeBatch(db);
+        ids.forEach((id) => {
+            const messageRef = doc(db, DBcollections.MESSAGES, id);
+            batch.update(messageRef, { isRead });
+        });
+        await batch.commit();
+        console.log(`Successfully updated ${ids.length} messages`);
+    } catch (error) {
+        handleError(error, 'Bulk Update Messages Error');
+        throw error;
+    }
+}
+
 const migrationFunc = async (): Promise<void> => {
     try {
         console.log("Starting messages migration...");
@@ -130,6 +145,6 @@ const migrationFunc = async (): Promise<void> => {
 }
 
 export {
-    addMessage, deleteMessage, getMessagesList, migrationFunc, updateMessage
+    addMessage, deleteMessage, getMessagesList, migrationFunc, updateMessage, updateMessagesStatus
 };
 
