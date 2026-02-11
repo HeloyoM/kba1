@@ -1,4 +1,6 @@
+import { DemoOverlay } from '@/components/DemoTour/DemoOverlay';
 import { AppUserProvider } from '@/context/auth.context';
+import { DemoProvider } from '@/context/demo.context';
 import { ToastProvider } from '@/context/toast.context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -28,11 +30,14 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <ToastProvider>
           <AppUserProvider>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-              <Stack.Screen name="auth" options={{ headerShown: false }} />
-            </Stack>
+            <DemoProvider>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                <Stack.Screen name="auth" options={{ headerShown: false }} />
+              </Stack>
+              <DemoOverlay />
+            </DemoProvider>
             <StatusBar style="auto" />
           </AppUserProvider>
         </ToastProvider>

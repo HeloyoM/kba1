@@ -2,11 +2,14 @@ import { addMessage, getMessagesList, updateMessage, updateMessagesStatus } from
 import AdminMessageForm from '@/components/AdminMessageForm';
 import MessageCard from '@/components/Messages/MessageCard';
 import MessageDetail from '@/components/Messages/MessageDetail';
+import { useDemo } from '@/context/demo.context';
 import { IMessage } from '@/interface/message.interface';
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function Messages() {
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -17,6 +20,7 @@ export default function Messages() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const isSelectionMode = selectedIds.size > 0;
+    const { registerLayout } = useDemo();
 
     const fetchMessages = useCallback(async () => {
         setIsRefreshing(true);
@@ -111,6 +115,15 @@ export default function Messages() {
                     <TouchableOpacity
                         onPress={() => setOpenForm(true)}
                         style={[styles.iconBtn, { backgroundColor: '#2563eb' }]}
+                        onLayout={(e) => {
+                            const layout = e.nativeEvent.layout;
+                            registerLayout('messages_plus', {
+                                x: layout.x + SCREEN_WIDTH - 58, // Adjust for parent container
+                                y: layout.y + 16, // Adjust for safe area / header
+                                width: layout.width,
+                                height: layout.height
+                            });
+                        }}
                     >
                         <Feather name="plus" size={22} color="#fff" />
                     </TouchableOpacity>
@@ -151,92 +164,113 @@ export default function Messages() {
                 </TouchableOpacity>
             </View>
 
-            <FlatList
-                data={displayed}
-                keyExtractor={(item) => item.id}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-                contentContainerStyle={{ padding: 16 }}
-                renderItem={({ item }) => (
-                    <MessageCard
-                        message={item}
-                        isSelected={selectedIds.has(item.id)}
-                        onPress={() => {
-                            if (isSelectionMode) {
-                                handleToggleSelection(item.id);
-                            } else {
-                                setSelectedMessage(item);
+            <View
+                style={{ flex: 1 }}
+                onLayout={(e) => {
+                    const layout = e.nativeEvent.layout;
+                    registerLayout('messages_feed', {
+                        x: layout.x,
+                        y: layout.y + 180, // Offset for header + action bar
+                        width: layout.width,
+                        height: 300 // Highlight a portion of the feed
+                    });
+                }}
+            >
+                <FlatList
+                    data={displayed}
+                    keyExtractor={(item) => item.id}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    contentContainerStyle={{ padding: 16 }}
+                    renderItem={({ item }) => (
+                        <MessageCard
+                            message={item}
+                            isSelected={selectedIds.has(item.id)}
+                            onPress={() => {
+                                if (isSelectionMode) {
+                                    handleToggleSelection(item.id);
+                                } else {
+                                    setSelectedMessage(item);
+                                }
+                            }}
+                            onLongPress={() => handleToggleSelection(item.id)}
+                        />
+                    )}
+                    ListEmptyComponent={
+                        <Text
+                            style={[styles.emptyText]}
+                        >
+                            {filterUnread ? 'No unread messages' : 'No messages'}
+                        </Text>
+                    }
+                    ListFooterComponent={
+                        <TouchableOpacity
+                            style={styles.loadMore}
+                            onPress={() =>
+                                setDisplayCount((prev) =>
+                                    Math.min(prev + 5, filtered.length)
+                                )
                             }
-                        }}
-                        onLongPress={() => handleToggleSelection(item.id)}
-                    />
-                )}
-                ListEmptyComponent={
-                    <Text
-                        style={[styles.emptyText]}
-                    >
-                        {filterUnread ? 'No unread messages' : 'No messages'}
-                    </Text>
-                }
-                ListFooterComponent={
-                    <TouchableOpacity
-                        style={styles.loadMore}
-                        onPress={() =>
-                            setDisplayCount((prev) =>
-                                Math.min(prev + 5, filtered.length)
-                            )
-                        }
-                    >
-                        <Text style={styles.loadMoreText}>Load More Messages</Text>
-                    </TouchableOpacity>
-                }
-            />
-
-            {isSelectionMode && (
-                <View style={styles.bulkActionBar}>
-                    <TouchableOpacity
-                        style={styles.bulkActionBtn}
-                        onPress={() => setSelectedIds(new Set())}
-                    >
-                        <Feather name="x" size={20} color="#666" />
-                        <Text style={styles.bulkActionText}>Cancel</Text>
-                    </TouchableOpacity>
-
-                    <View style={{ flexDirection: 'row', gap: 12 }}>
-                        <TouchableOpacity
-                            style={[styles.bulkActionBtn, { backgroundColor: '#2563eb' }]}
-                            onPress={() => handleBulkToggleRead(true)}
+                            onLayout={(e) => {
+                                const layout = e.nativeEvent.layout;
+                                registerLayout('messages_load_more', {
+                                    x: layout.x + 16,
+                                    y: 600, // Approximate position at footer
+                                    width: layout.width,
+                                    height: layout.height
+                                });
+                            }}
                         >
-                            <Feather name="check-circle" size={18} color="#fff" />
-                            <Text style={[styles.bulkActionText, { color: '#fff' }]}>Mark Read</Text>
+                            <Text style={styles.loadMoreText}>Load More Messages</Text>
+                        </TouchableOpacity>
+                    }
+                />
+
+                {isSelectionMode && (
+                    <View style={styles.bulkActionBar}>
+                        <TouchableOpacity
+                            style={styles.bulkActionBtn}
+                            onPress={() => setSelectedIds(new Set())}
+                        >
+                            <Feather name="x" size={20} color="#666" />
+                            <Text style={styles.bulkActionText}>Cancel</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.bulkActionBtn, { backgroundColor: '#4b5563' }]}
-                            onPress={() => handleBulkToggleRead(false)}
-                        >
-                            <Feather name="circle" size={18} color="#fff" />
-                            <Text style={[styles.bulkActionText, { color: '#fff' }]}>Unread</Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <TouchableOpacity
+                                style={[styles.bulkActionBtn, { backgroundColor: '#2563eb' }]}
+                                onPress={() => handleBulkToggleRead(true)}
+                            >
+                                <Feather name="check-circle" size={18} color="#fff" />
+                                <Text style={[styles.bulkActionText, { color: '#fff' }]}>Mark Read</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.bulkActionBtn, { backgroundColor: '#4b5563' }]}
+                                onPress={() => handleBulkToggleRead(false)}
+                            >
+                                <Feather name="circle" size={18} color="#fff" />
+                                <Text style={[styles.bulkActionText, { color: '#fff' }]}>Unread</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            )}
-            <Modal statusBarTranslucent visible={!!selectedMessage} animationType="slide">
-                <MessageDetail
-                    message={selectedMessage}
-                    onClose={() => setSelectedMessage(null)}
-                    onToggleRead={() => handleToggleRead(selectedMessage?.id!)}
-                />
-            </Modal>
+                )}
+                <Modal statusBarTranslucent visible={!!selectedMessage} animationType="slide">
+                    <MessageDetail
+                        message={selectedMessage}
+                        onClose={() => setSelectedMessage(null)}
+                        onToggleRead={() => handleToggleRead(selectedMessage?.id!)}
+                    />
+                </Modal>
 
-            <Modal visible={openForm} animationType="slide">
-                <AdminMessageForm
-                    onClose={() => setOpenForm(false)}
-                    onSubmit={handleNewMessage}
-                    visible={openForm}
-                />
-            </Modal>
-
+                <Modal visible={openForm} animationType="slide">
+                    <AdminMessageForm
+                        onClose={() => setOpenForm(false)}
+                        onSubmit={handleNewMessage}
+                        visible={openForm}
+                    />
+                </Modal>
+            </View>
         </SafeAreaView>
     );
 }

@@ -2,6 +2,7 @@ import FileManagementSection from "@/components/PersonalArea/FileManagementSecti
 import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from "@/context/auth.context";
+import { useDemo } from "@/context/demo.context";
 import { Redirect, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
@@ -9,6 +10,7 @@ const Profile = () => {
     const colorScheme = useColorScheme();
     const router = useRouter();
     const { logout, user } = useAppUser();
+    const { startTour } = useDemo();
 
     const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
 
@@ -42,6 +44,14 @@ const Profile = () => {
                         <Text style={styles.upgradeText}>Upgrade to Premium</Text>
                     </TouchableOpacity>
                 )}
+
+                <TouchableOpacity
+                    style={styles.demoButton}
+                    onPress={startTour}
+                >
+                    <IconSymbol color="#fff" size={20} name='play.fill' />
+                    <Text style={styles.demoText}>Restart App Demo</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
                     <IconSymbol color="#fff" size={20} name='door.french.open' />
@@ -113,6 +123,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     upgradeText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    demoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#10B981',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        marginHorizontal: 20,
+        marginTop: 20,
+        justifyContent: 'center',
+    },
+    demoText: {
         color: '#fff',
         fontWeight: '600',
         fontSize: 16,
