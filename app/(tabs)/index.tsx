@@ -1,14 +1,21 @@
-import { migrationFunc } from '@/api/messages/message';
 import Menu from '@/components/Menu/Menu';
 import { useAppUser } from '@/context/auth.context';
+import { useDemo } from '@/context/demo.context';
 import { colors } from '@/utils/colors';
 import { CircularProgress } from '@expo/ui/jetpack-compose';
 import { Redirect } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   const { user, loading } = useAppUser();
+  const { isTourActive, hasCompletedTour, startTour } = useDemo();
+
+  useEffect(() => {
+    if (!loading && user && !hasCompletedTour && !isTourActive) {
+      startTour();
+    }
+  }, [loading, user, hasCompletedTour, isTourActive, startTour]);
 
   if (user === null) {
     return <Redirect href="/auth" />;

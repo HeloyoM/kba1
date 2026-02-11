@@ -1,3 +1,4 @@
+import { useDemo } from '@/context/demo.context';
 import { Feather } from "@expo/vector-icons";
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -7,10 +8,36 @@ interface CampaignFeedHeaderProps {
 }
 
 export function CampaignFeedHeader({ onCreate }: CampaignFeedHeaderProps) {
+    const { registerLayout } = useDemo();
     return (
         <View style={styles.header}>
-            <Text style={styles.title}>Campaigns</Text>
-            <TouchableOpacity style={styles.createButton} onPress={onCreate}>
+            <Text
+                style={styles.title}
+                onLayout={(e) => {
+                    const layout = e.nativeEvent.layout;
+                    registerLayout('community_header', {
+                        x: layout.x,
+                        y: layout.y + 110, // Approximate header offset
+                        width: layout.width,
+                        height: layout.height
+                    });
+                }}
+            >
+                Campaigns
+            </Text>
+            <TouchableOpacity
+                style={styles.createButton}
+                onPress={onCreate}
+                onLayout={(e) => {
+                    const layout = e.nativeEvent.layout;
+                    registerLayout('community_new_campaign', {
+                        x: layout.x + 200, // Adjust for parent alignment
+                        y: layout.y + 110,
+                        width: layout.width,
+                        height: layout.height
+                    });
+                }}
+            >
                 <Feather name="plus" size={18} color="#fff" />
                 <Text style={styles.createButtonText}>New Campaign</Text>
             </TouchableOpacity>
