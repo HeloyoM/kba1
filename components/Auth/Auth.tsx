@@ -1,16 +1,18 @@
 import { signInAnonymouslyMethod } from '@/api/auth/auth';
+import { appStaticConfig } from '@/constants/config';
 import { useAppUser } from '@/context/auth.context';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StatusBar, Text, useColorScheme, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     withTiming,
 } from 'react-native-reanimated';
+import VideoBackground from '../VideoBackground/VideoBackground';
 import { styles } from './Auth.styles';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
-import { useRouter } from 'expo-router';
-import { appStaticConfig } from '@/constants/config';
+
 
 const COLLAPSED_HEIGHT = 0;
 const LOGIN_HEIGHT = 410;
@@ -65,6 +67,7 @@ const Auth = () => {
 
     return (
         <View style={[styles.container, { backgroundColor: isDarkMode ? '#0f0f12' : '#f8f9fa' }]}>
+            <VideoBackground />
             <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <View style={styles.overlay}>
                 <View style={styles.contentContainer}>

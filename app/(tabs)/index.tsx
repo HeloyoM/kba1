@@ -1,4 +1,5 @@
 import Menu from '@/components/Menu/Menu';
+import VideoBackground from '@/components/VideoBackground/VideoBackground';
 import { useAppUser } from '@/context/auth.context';
 import { useDemo } from '@/context/demo.context';
 import { colors } from '@/utils/colors';
@@ -32,6 +33,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      <VideoBackground />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.greeting}>Hello, {user.givenName} 👋</Text>
