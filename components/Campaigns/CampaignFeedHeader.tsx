@@ -1,4 +1,4 @@
-import { useDemo } from '@/context/demo.context';
+// import { useDemo } from '@/context/demo.context';
 import { Feather } from "@expo/vector-icons";
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +8,7 @@ interface CampaignFeedHeaderProps {
 }
 
 export function CampaignFeedHeader({ onCreate }: CampaignFeedHeaderProps) {
-    const { registerLayout } = useDemo();
+    // const { registerLayout } = useDemo();
     return (
         <View style={styles.header}>
             <Text
@@ -21,12 +21,12 @@ export function CampaignFeedHeader({ onCreate }: CampaignFeedHeaderProps) {
                 onPress={onCreate}
                 onLayout={(e) => {
                     const layout = e.nativeEvent.layout;
-                    registerLayout('community_new_campaign', {
-                        x: layout.x + 200, // Adjust for parent alignment
-                        y: layout.y + 110,
-                        width: layout.width,
-                        height: layout.height
-                    });
+                    // registerLayout('community_new_campaign', {
+                    //     x: layout.x + 200, // Adjust for parent alignment
+                    //     y: layout.y + 110,
+                    //     width: layout.width,
+                    //     height: layout.height
+                    // });
                 }}
             >
                 <Feather name="plus" size={18} color="#fff" />

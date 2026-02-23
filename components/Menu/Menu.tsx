@@ -1,6 +1,6 @@
 import { getCampaignsList } from "@/api/campaigns/campaigns";
 import { useAppUser } from "@/context/auth.context";
-import { useDemo } from "@/context/demo.context";
+// import { useDemo } from "@/context/demo.context";
 import { CampaignTypeEnum } from "@/interface/campaign.interface";
 import { colors } from "@/utils/colors";
 import { useRouter } from "expo-router";
@@ -59,7 +59,7 @@ const DynamicSubtitle = ({ prefix, words, color }: DynamicSubtitleProps) => {
 const Menu = () => {
     const router = useRouter();
     const [openedCampaignsCount, setOpenedCampaignsCount] = useState<number>(0);
-    const { registerLayout } = useDemo();
+    // const { registerLayout } = useDemo();
 
     useEffect(() => {
         const fetchCampaigns = async () => {
@@ -104,12 +104,12 @@ const Menu = () => {
             onLayout={(e) => {
                 const layout = e.nativeEvent.layout;
                 // Since this is the first container of buttons, it's a good target for "Fast Buttons"
-                registerLayout('home_fast_buttons', {
-                    x: layout.x,
-                    y: layout.y + 120, // Offset for header
-                    width: layout.width,
-                    height: layout.height / 2 // Just highlight the top part for better focus
-                });
+                // registerLayout('home_fast_buttons', {
+                //     x: layout.x,
+                //     y: layout.y + 120, // Offset for header
+                //     width: layout.width,
+                //     height: layout.height / 2 // Just highlight the top part for better focus
+                // });
             }}
         >
             {demo.map((d, i) => (

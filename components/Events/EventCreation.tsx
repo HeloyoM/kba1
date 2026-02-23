@@ -315,8 +315,8 @@ export default function EventCreation({
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.submitBtn, !isPaying && styles.disabledBtn]}
-                        onPress={isPaying ? handleEventCreated : () => {
+                        style={[styles.submitBtn, /*!isPaying &&*/ styles.disabledBtn]}
+                        onPress={/*isPaying*/ true ? handleEventCreated : () => {
                             Alert.alert("Upgrade Required", "You need to pay for the system to create events.", [
                                 { text: "Cancel", style: "cancel" },
                                 { text: "Upgrade", onPress: () => router.push('/billing') }
@@ -326,11 +326,11 @@ export default function EventCreation({
                         <Text style={styles.submitText}>Create Event</Text>
                     </TouchableOpacity>
                 </View>
-                {!isPaying && (
+                {/* {!isPaying && (
                     <Text style={styles.upgradeNotice}>
                         * You are in read-only mode. Upgrade to create community events.
                     </Text>
-                )}
+                )} */}
             </View>
         </ScrollView>
     );

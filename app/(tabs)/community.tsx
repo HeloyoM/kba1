@@ -1,7 +1,7 @@
 import { CampaignDetails } from '@/components/Campaigns/CampaignDetails';
 import { CampaignFeed } from '@/components/Campaigns/CampaignFeed';
 import { CampaignForm } from '@/components/Campaigns/CampaignForm';
-import { useDemo } from '@/context/demo.context';
+// import { useDemo } from '@/context/demo.context';
 import { CampaignTypeEnum, ICampaign } from '@/interface/campaign.interface';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -13,7 +13,7 @@ export default function Community() {
     const { type } = useLocalSearchParams<{ type: CampaignTypeEnum | 'all' }>();
     const [currentView, setCurrentView] = useState<ViewType>('feed');
     const [selectedCampaign, setSelectedCampaign] = useState<ICampaign | null>(null);
-    const { registerLayout } = useDemo();
+    // const { registerLayout } = useDemo();
 
     const handleViewCampaign = (campaign: ICampaign) => {
         setSelectedCampaign(campaign);
@@ -45,12 +45,12 @@ export default function Community() {
         <SafeAreaView style={styles.container}
             onLayout={(e) => {
                 const layout = e.nativeEvent.layout;
-                registerLayout('community_header', {
-                    x: layout.x,
-                    y: layout.y + 110, // Approximate header offset
-                    width: layout.width,
-                    height: layout.height
-                });
+                // registerLayout('community_header', {
+                //     x: layout.x,
+                //     y: layout.y + 110, // Approximate header offset
+                //     width: layout.width,
+                //     height: layout.height
+                // });
             }}>
             {currentView === 'feed' && (
                 <CampaignFeed

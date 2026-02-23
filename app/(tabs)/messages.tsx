@@ -2,7 +2,7 @@ import { addMessage, getMessagesList, updateMessage, updateMessagesStatus } from
 import AdminMessageForm from '@/components/AdminMessageForm';
 import MessageCard from '@/components/Messages/MessageCard';
 import MessageDetail from '@/components/Messages/MessageDetail';
-import { useDemo } from '@/context/demo.context';
+// import { useDemo } from '@/context/demo.context';
 import { IMessage } from '@/interface/message.interface';
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ export default function Messages() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const isSelectionMode = selectedIds.size > 0;
-    const { registerLayout } = useDemo();
+    // const { registerLayout } = useDemo();
 
     const fetchMessages = useCallback(async () => {
         setIsRefreshing(true);
@@ -117,12 +117,12 @@ export default function Messages() {
                         style={[styles.iconBtn, { backgroundColor: '#2563eb' }]}
                         onLayout={(e) => {
                             const layout = e.nativeEvent.layout;
-                            registerLayout('messages_plus', {
-                                x: layout.x + SCREEN_WIDTH - 58, // Adjust for parent container
-                                y: layout.y + 16, // Adjust for safe area / header
-                                width: layout.width,
-                                height: layout.height
-                            });
+                            // registerLayout('messages_plus', {
+                            //     x: layout.x + SCREEN_WIDTH - 58, // Adjust for parent container
+                            //     y: layout.y + 16, // Adjust for safe area / header
+                            //     width: layout.width,
+                            //     height: layout.height
+                            // });
                         }}  
                     >
                         <Feather name="plus" size={22} color="#fff" />
@@ -168,12 +168,12 @@ export default function Messages() {
                 style={{ flex: 1 }}
                 onLayout={(e) => {
                     const layout = e.nativeEvent.layout;
-                    registerLayout('messages_feed', {
-                        x: layout.x,
-                        y: layout.y + 180, // Offset for header + action bar
-                        width: layout.width,
-                        height: 300 // Highlight a portion of the feed
-                    });
+                    // registerLayout('messages_feed', {
+                    //     x: layout.x,
+                    //     y: layout.y + 180, // Offset for header + action bar
+                    //     width: layout.width,
+                    //     height: 300 // Highlight a portion of the feed
+                    // });
                 }}
             >
                 <FlatList
@@ -213,12 +213,12 @@ export default function Messages() {
                             }
                             onLayout={(e) => {
                                 const layout = e.nativeEvent.layout;
-                                registerLayout('messages_load_more', {
-                                    x: layout.x + 800,
-                                    y: 600, // Approximate position at footer
-                                    width: layout.width,
-                                    height: layout.height
-                                });
+                                // registerLayout('messages_load_more', {
+                                //     x: layout.x + 800,
+                                //     y: 600, // Approximate position at footer
+                                //     width: layout.width,
+                                //     height: layout.height
+                                // });
                             }}
                         >
                             <Text style={styles.loadMoreText}>Load More Messages</Text>

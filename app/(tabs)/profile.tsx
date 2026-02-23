@@ -2,7 +2,7 @@ import FileManagementSection from "@/components/PersonalArea/FileManagementSecti
 import ProfileHeader from "@/components/PersonalArea/ProfileHeader";
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppUser } from "@/context/auth.context";
-import { useDemo } from "@/context/demo.context";
+// import { useDemo } from "@/context/demo.context";
 import { Redirect, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
@@ -10,7 +10,7 @@ const Profile = () => {
     const colorScheme = useColorScheme();
     const router = useRouter();
     const { logout, user } = useAppUser();
-    const { startTour } = useDemo();
+    // const { startTour } = useDemo();
 
     const isPaying = user?.isPaying || (user?.subscriptionExpires && user.subscriptionExpires > Date.now());
 
@@ -35,7 +35,7 @@ const Profile = () => {
                 <ActivityOverview />
                 <SecuritySection /> */}
 
-                {!isPaying && (
+                {/* {!isPaying && (
                     <TouchableOpacity
                         style={styles.upgradeButton}
                         onPress={() => router.push('/billing')}
@@ -43,15 +43,15 @@ const Profile = () => {
                         <IconSymbol color="#fff" size={20} name='star.fill' />
                         <Text style={styles.upgradeText}>Upgrade to Premium</Text>
                     </TouchableOpacity>
-                )}
+                )} */}
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.demoButton}
                     onPress={startTour}
                 >
                     <IconSymbol color="#fff" size={20} name='play.fill' />
                     <Text style={styles.demoText}>Restart App Demo</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
                     <IconSymbol color="#fff" size={20} name='door.french.open' />

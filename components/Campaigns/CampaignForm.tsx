@@ -289,7 +289,7 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
                 ) : (
                     <Button
                         title={isEditing ? 'Update Campaign' : 'Create Campaign'}
-                        onPress={isPaying ? handleSubmit : () => {
+                        onPress={/*isPaying*/ true ? handleSubmit : () => {
                             Alert.alert("Upgrade Required", "You need to pay for the system to create campaigns.", [
                                 { text: "Cancel", style: "cancel" },
                                 { text: "Upgrade", onPress: () => router.push('/billing') }
@@ -299,11 +299,11 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
                     />
                 )}
             </View>
-            {!isPaying && (
+            {/* {!isPaying && (
                 <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>
                     * Upgrade to premium to create or edit campaigns
                 </Text>
-            )}
+            )} */}
         </ScrollView >
     );
 }

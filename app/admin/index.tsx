@@ -39,7 +39,7 @@ export default function AdminScreen() {
     };
 
     React.useEffect(() => {
-        if (!isAdminAuthenticated) router.replace('/admin/login');    ;
+        if (!isAdminAuthenticated) router.replace('/admin/login');;
 
         const q = query(collection(db, DBcollections.USERS), orderBy('givenName', 'asc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -96,7 +96,7 @@ export default function AdminScreen() {
                             <View style={styles.userInfo}>
                                 <View style={styles.nameRow}>
                                     <Text style={[styles.userName, { color: Colors[colorScheme].text }]}>
-                                        {u.givenName || 'Unknown User'}
+                                        {u.givenName || 'Unknown User'}{u.name ? ` (${u.name})` : ''}
                                     </Text>
                                     {isOnline(u.lastActive) && (
                                         <View style={styles.onlineBadge} />
@@ -122,7 +122,9 @@ export default function AdminScreen() {
                     {users.filter(u => u.role === 'admin' && isOnline(u.lastActive)).map(admin => (
                         <View key={admin.id} style={styles.onlineAdminItem}>
                             <View style={styles.onlineBadge} />
-                            <Text style={{ color: Colors[colorScheme].text, marginLeft: 8 }}>{admin.givenName}</Text>
+                            <Text style={{ color: Colors[colorScheme].text, marginLeft: 8 }}>
+                                {admin.givenName}{admin.name ? ` (${admin.name})` : ''}
+                            </Text>
                         </View>
                     ))}
                     {users.filter(u => u.role === 'admin' && isOnline(u.lastActive)).length === 0 && (

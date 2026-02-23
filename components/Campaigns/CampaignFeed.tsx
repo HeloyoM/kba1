@@ -1,4 +1,4 @@
-import { useDemo } from '@/context/demo.context';
+// import { useDemo } from '@/context/demo.context';
 import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -19,13 +19,13 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign, initialType }: 
     const [searchQuery, setSearchQuery] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [selectedType, setSelectedType] = useState<CampaignType | 'all'>(initialType as CampaignType || 'all');
-    const { isTourActive, currentStepIndex, steps, registerLayout } = useDemo();
+    // const { isTourActive, currentStepIndex, steps, registerLayout } = useDemo();
 
-    useEffect(() => {
-        if (isTourActive && steps[currentStepIndex].targetId === 'community_filters') {
-            setShowFilters(true);
-        }
-    }, [isTourActive, currentStepIndex]);
+    // useEffect(() => {
+    //     if (isTourActive && steps[currentStepIndex].targetId === 'community_filters') {
+    //         setShowFilters(true);
+    //     }
+    // }, [isTourActive, currentStepIndex]);
 
     useEffect(() => {
         if (initialType) {
@@ -118,12 +118,12 @@ export function CampaignFeed({ onViewCampaign, onCreateCampaign, initialType }: 
                 <View
                     onLayout={(e) => {
                         const layout = e.nativeEvent.layout;
-                        registerLayout('community_filters', {
-                            x: layout.x + 16,
-                            y: layout.y + 160,
-                            width: layout.width - 32,
-                            height: layout.height
-                        });
+                        // registerLayout('community_filters', {
+                        //     x: layout.x + 16,
+                        //     y: layout.y + 160,
+                        //     width: layout.width - 32,
+                        //     height: layout.height
+                        // });
                     }}
                 >
                     <CampaignFeedFilters

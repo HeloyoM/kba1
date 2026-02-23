@@ -2,7 +2,7 @@ import EventCreation from '@/components/Events/EventCreation';
 import { EventDetails } from '@/components/Events/EventDetails';
 import { EventFeed } from '@/components/Events/EventFeed';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useDemo } from '@/context/demo.context';
+// import { useDemo } from '@/context/demo.context';
 import { IEvent } from '@/interface/events.interface';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -16,7 +16,7 @@ export default function Events() {
   const { view } = useLocalSearchParams<{ view: ViewType }>();
   const [currentView, setCurrentView] = useState<ViewType>(view || "feed");
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
-  const { registerLayout } = useDemo();
+  // const { registerLayout } = useDemo();
 
   const handleEventClick = (event: IEvent) => {
     setSelectedEvent(event);
@@ -63,12 +63,12 @@ export default function Events() {
               onLayout={(e) => {
                 const layout = e.nativeEvent.layout;
                 // Adjust for header height and alignment
-                registerLayout('events_create', {
-                  x: layout.x + 200,
-                  y: layout.y + 10,
-                  width: layout.width,
-                  height: layout.height
-                });
+                // registerLayout('events_create', {
+                //   x: layout.x + 200,
+                //   y: layout.y + 10,
+                //   width: layout.width,
+                //   height: layout.height
+                // });
               }}
             >
               <IconSymbol name="plus" size={20} color="#fff" />
