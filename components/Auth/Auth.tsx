@@ -66,7 +66,7 @@ const Auth = () => {
     const isDarkMode = colorScheme === 'dark';
 
     return (
-        <View style={[styles.container, { backgroundColor: isDarkMode ? '#0f0f12' : '#f8f9fa' }]}>
+        <View style={[styles.container /*, { backgroundColor: isDarkMode ? '#0f0f12' : '#f8f9fa' }*/]}>
             <VideoBackground />
             <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <View style={styles.overlay}>
