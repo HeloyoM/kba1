@@ -19,5 +19,6 @@ export default interface IUser {
     bio?: string;
     lastActive?: FieldValue;
     totpSecret?: string;
+    isGuest?: boolean;
 }
 

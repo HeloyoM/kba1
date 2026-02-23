@@ -42,7 +42,7 @@ const updateUser = async (user: Partial<IUser>): Promise<void> => {
 }
 
 
-const formatAssignedUser = async (user: { email: string; name?: string | null; familyName?: string | null }): Promise<IUser | undefined> => {
+const formatAssignedUser = async (user: { email: string; name?: string | null; familyName?: string | null }, isGuest: boolean = false): Promise<IUser | undefined> => {
     const timeStamp = serverTimestamp();
 
     const querySnapshot = await getUserByEmailAdd(user.email);
@@ -70,6 +70,7 @@ const formatAssignedUser = async (user: { email: string; name?: string | null; f
             location: userInfo.location || '',
             lastActive: userInfo.lastActive || null,
             totpSecret: userInfo.totpSecret || '',
+            isGuest,
         };
         return formattedUser
     } else {
@@ -77,7 +78,17 @@ const formatAssignedUser = async (user: { email: string; name?: string | null; f
     }
 }
 
-const formatUser = (user: { id: string; email: string; name?: string | null; familyName?: string | null; photo?: string | null }, uid?: string): IUser => {
+const formatUser = (
+    user: {
+        id: string;
+        email: string;
+        name?: string | null;
+        familyName?: string | null;
+        photo?: string | null
+    },
+    uid?: string,
+    isGuest?: boolean
+): IUser => {
     const timeStamp = serverTimestamp();
 
     const formattedUser: IUser = {
@@ -96,6 +107,7 @@ const formatUser = (user: { id: string; email: string; name?: string | null; fam
         subscriptionExpires: 0,
         birthday: '',
         location: '',
+        isGuest,
     };
 
     return formattedUser

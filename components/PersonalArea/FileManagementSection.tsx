@@ -17,6 +17,14 @@ const FileManagementSection = () => {
     const isDark = colorScheme === 'dark';
     const theme = isDark ? darkStyles : lightStyles;
 
+    /*
+    *   Uploading files is not possible in Firestore in the free tier plan
+    *   turn to Blaze plan (Pay-as-you-go) to enable file uploading
+    *   Here you can see the full conditions: https://firebase.google.com/pricing?authuser=0&_gl=1*zy8v10*_ga*ODIxMzI2NDM4LjE3NjIyODUxODA.*_ga_CW55HF8NVT*czE3NzE4NDQzOTckbzc5JGcxJHQxNzcxODQ1NTE4JGozOSRsMCRoMA..#blaze-calculator
+    *   Google is charging for Egress costs which is the bandwidth used by the Internet (regardless to the data traffic)
+    *   
+    *   !Notice: It is not possible to upload Blob or FormData types of data in Free tier
+    */
     const handleUpload = async () => {
         if (!user?.uid) return;
 

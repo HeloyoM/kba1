@@ -14,9 +14,8 @@ import {
     User
 } from "firebase/auth";
 import { handleError } from '../error-handler';
-import { formatAssignedUser, formatUser, getUserById, insertUser, updateUser } from './users';
+import { formatAssignedUser, formatUser, getUserById, insertUser } from './users';
 import { updateLastLogin, userDoesntExist } from './utiles';
-import { serverTimestamp } from 'firebase/firestore';
 
 const login = async (): Promise<IUser | undefined> => {
     try {
@@ -29,8 +28,8 @@ const login = async (): Promise<IUser | undefined> => {
 
             const result = await signInWithCredential(auth, googleCredential);
             const uid = result.user.uid;
-            
-            const user = formatUser(response.data.user, uid)
+
+            const user = formatUser(response.data.user, uid, false)
 
             if (await userDoesntExist(user.email)) {
                 await insertUser(user);
@@ -77,7 +76,7 @@ const createWithEmailPasswrodMethod = async (credentials: { email: string, passw
 
         const result: User = userCredential.user;
 
-        const user = formatUser({ id: result.uid, email: credentials.email }, result.uid)
+        const user = formatUser({ id: result.uid, email: credentials.email }, result.uid, false)
 
         if (await userDoesntExist(credentials.email)) {
             await insertUser(user);
@@ -132,8 +131,8 @@ const signInAnonymouslyMethod = async (): Promise<IUser | undefined> => {
             id: result.uid,
             email: `guest_${result.uid}@community.com`, // Unique guest email based on UID
             name: guestName,
-            familyName: 'User'
-        }, result.uid);
+            familyName: 'User',
+        }, result.uid, true);
 
         if (await userDoesntExist(user.email)) {
             await insertUser(user);
