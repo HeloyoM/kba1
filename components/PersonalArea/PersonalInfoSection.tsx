@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { InputRow } from "./InputRow";
         
-type FieldName = "email" | "phone" | "location" | "birthday";
+type FieldName = "email" | "phone" | "birthday";
 
 
 export function PersonalInfoSection() {
@@ -16,7 +16,6 @@ export function PersonalInfoSection() {
     const [userInfo, setUserInfo] = useState<Partial<IUser>>({
         email: user?.email!,
         phone: user?.phone! || '',
-        location: user?.location! || '',
         birthday: user?.birthday! || '',
     });
 
@@ -102,15 +101,6 @@ export function PersonalInfoSection() {
                 onChange={(v: any) => changeField("phone", v)}
             />
 
-            <InputRow
-                label="Location"
-                error='sd'
-                icon={<></>}
-                value={tempUserInfo.location!}
-                displayValue={userInfo.location!}
-                editing={isEditing}
-                onChange={(v: any) => changeField("location", v)}
-            />
 
             <InputRow
                 label="Birthday"

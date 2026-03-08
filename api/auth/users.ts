@@ -67,10 +67,15 @@ const formatAssignedUser = async (user: { email: string; name?: string | null; f
             photoUrl: userInfo.photoUrl,
             subscriptionExpires: userInfo.subscriptionExpires,
             birthday: userInfo.birthday || '',
-            location: userInfo.location || '',
-            lastActive: userInfo.lastActive || null,
             totpSecret: userInfo.totpSecret || '',
             isGuest,
+            location: {
+                street: userInfo.location?.street || userInfo.street || '',
+                city: userInfo.location?.city || userInfo.city || '',
+                state: userInfo.location?.state || userInfo.state || '',
+                zipCode: userInfo.location?.zipCode || userInfo.zipCode || '',
+                country: userInfo.location?.country || userInfo.country || '',
+            }
         };
         return formattedUser
     } else {
@@ -106,7 +111,13 @@ const formatUser = (
         photoUrl: user.photo || null,
         subscriptionExpires: 0,
         birthday: '',
-        location: '',
+        location: {
+            street: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: '',
+        },
         isGuest,
     };
 

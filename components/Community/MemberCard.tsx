@@ -58,11 +58,6 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
                         </View>
                     )}
 
-                    <View style={styles.detailItem}>
-                        <Feather name="mail" size={16} color="#666" />
-                        <Text style={styles.detailText}>{member.email}</Text>
-                    </View>
-
                     {member.phone && (
                         <View style={styles.detailItem}>
                             <Feather name="phone" size={16} color="#666" />
@@ -71,10 +66,32 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
                     )}
 
                     {member.location && (
-                        <View style={styles.detailItem}>
-                            <Feather name="map-pin" size={16} color="#666" />
-                            <Text style={styles.detailText}>{member.location}</Text>
-                        </View>
+                        <>
+                            {member.location.street && (
+                                <View style={styles.detailItem}>
+                                    <Feather name="map-pin" size={16} color="#666" />
+                                    <Text style={styles.detailText}>{member.location.street}</Text>
+                                </View>
+                            )}
+                            {member.location.city && (
+                                <View style={styles.detailItem}>
+                                    <Feather name="map" size={16} color="#666" />
+                                    <Text style={styles.detailText}>{member.location.city}</Text>
+                                </View>
+                            )}
+                            {member.location.state && (
+                                <View style={styles.detailItem}>
+                                    <Feather name="flag" size={16} color="#666" />
+                                    <Text style={styles.detailText}>{member.location.state}</Text>
+                                </View>
+                            )}
+                            {member.location.country && member.location.country.toLowerCase() !== 'israel' && (
+                                <View style={styles.detailItem}>
+                                    <Feather name="globe" size={16} color="#666" />
+                                    <Text style={styles.detailText}>{member.location.country}</Text>
+                                </View>
+                            )}
+                        </>
                     )}
 
                     {/* Action Buttons could go here */}

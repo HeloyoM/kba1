@@ -14,7 +14,13 @@ export default interface IUser {
     role: string;
     subscriptionExpires: number;
     uid?: string;
-    location?: string;
+    location?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        zipCode?: string;
+        country?: string;
+    };
     birthday?: string;
     bio?: string;
     lastActive?: FieldValue;
