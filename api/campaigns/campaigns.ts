@@ -1,5 +1,4 @@
 import { db } from '@/config/firebase';
-import { mockCampaigns } from '@/data/mock-campaigns';
 import { ICampaign } from '@/interface/campaign.interface';
 import IUser from '@/interface/user.interface';
 import { addDoc, arrayUnion, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
@@ -88,19 +87,19 @@ const deleteCampaign = async (id: string): Promise<void> => {
 
 const migrationFunc = async (): Promise<void> => {
     try {
-        mockCampaigns.forEach(async (e: ICampaign) => {
-            console.log(`pushing e ${e.id} to firestore...`)
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id, ...campaignData } = e; // Let Firestore generate the ID or use custom logic if needed, but usually we don't want to push 'id' field if it's the doc ID. 
-            // However, previous code was pushing 'e'. Let's stick to simple spread, but typically we omit ID. 
-            // If we want to preserve specific IDs, we'd use setDoc. modify if needed.
-            // For now, adhering to previous pattern but cleaner.
+        // mockCampaigns.forEach(async (e: ICampaign) => {
+        //     console.log(`pushing e ${e.id} to firestore...`)
+        //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //     const { id, ...campaignData } = e; // Let Firestore generate the ID or use custom logic if needed, but usually we don't want to push 'id' field if it's the doc ID. 
+        //     // However, previous code was pushing 'e'. Let's stick to simple spread, but typically we omit ID. 
+        //     // If we want to preserve specific IDs, we'd use setDoc. modify if needed.
+        //     // For now, adhering to previous pattern but cleaner.
 
-            const result = await addDoc(campaignsRef, e);
-            if (result.id) {
-                console.log(`campaign ${e.id} successfully pushed to firestore...`)
-            }
-        });
+        //     const result = await addDoc(campaignsRef, e);
+        //     if (result.id) {
+        //         console.log(`campaign ${e.id} successfully pushed to firestore...`)
+        //     }
+        // });
 
     } catch (error) {
         console.log(`migation failed!, ${error}`)

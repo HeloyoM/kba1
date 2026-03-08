@@ -1,5 +1,5 @@
 import { db } from '@/config/firebase';
-import { mockMessages } from '@/data/mock-messages';
+// import { mockMessages } from '@/data/mock-messages';
 import { IAuthor, IMessage } from '@/interface/message.interface';
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc, writeBatch } from 'firebase/firestore';
 import { DBcollections } from '../../constants/DBcollections';
@@ -121,24 +121,24 @@ const updateMessagesStatus = async (ids: string[], isRead: boolean): Promise<voi
 
 const migrationFunc = async (): Promise<void> => {
     try {
-        console.log("Starting messages migration...");
-        for (const msg of mockMessages) {
-            console.log(`Pushing message ${msg.id} to firestore...`)
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id, ...messageData } = msg;
+        // console.log("Starting messages migration...");
+        // for (const msg of mockMessages) {
+        //     console.log(`Pushing message ${msg.id} to firestore...`)
+        //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //     const { id, ...messageData } = msg;
 
-            // Ensure author is stored as an ID string
-            const firestoreData = {
-                ...messageData,
-                author: typeof msg.author === 'object' ? msg.author.id : msg.author
-            };
+        //     // Ensure author is stored as an ID string
+        //     const firestoreData = {
+        //         ...messageData,
+        //         author: typeof msg.author === 'object' ? msg.author.id : msg.author
+        //     };
 
-            const result = await addDoc(messagesRef, firestoreData);
-            if (result.id) {
-                console.log(`Message ${msg.id} successfully migrated to Firestore with new ID: ${result.id}`)
-            }
-        }
-        console.log("Messages migration completed successfully.");
+        //     const result = await addDoc(messagesRef, firestoreData);
+        //     if (result.id) {
+        //         console.log(`Message ${msg.id} successfully migrated to Firestore with new ID: ${result.id}`)
+        //     }
+        // }
+        // console.log("Messages migration completed successfully.");
     } catch (error) {
         console.error("Migration failed!", error);
     }
