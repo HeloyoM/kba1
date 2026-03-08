@@ -6,6 +6,9 @@ import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Button, Image, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import dayjs from 'dayjs';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
 
 interface CampaignFormProps {
     campaign: ICampaign | null;
@@ -26,7 +29,7 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
         type: campaign?.type || ('donate' as CampaignType),
         status: campaign?.status || ('active' as CampaignStatus),
         goal: campaign?.goal?.toString() || '',
-        unit: campaign?.unit || '',
+        unit: campaign?.unit || 'ILS',
         startDate: campaign?.startDate || new Date().toISOString(),
         endDate: campaign?.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         tags: campaign?.tags.join(', ') || '',
@@ -38,9 +41,18 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
     const [imagePreview, setImagePreview] = useState(campaign?.image || '');
     const [isFocusType, setIsFocusType] = useState(false);
     const [isFocusStatus, setIsFocusStatus] = useState(false);
+    const [isFocusUnit, setIsFocusUnit] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     const handleInputChange = (field: string, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const onDateChange = (event: any, selectedDate?: Date) => {
+        setShowDatePicker(Platform.OS === 'ios');
+        if (selectedDate) {
+            handleInputChange('endDate', selectedDate.toISOString());
+        }
     };
 
     const calculateDeadline = (endDate: string) => {
@@ -119,6 +131,11 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
         { label: 'Active', value: 'active' },
         { label: 'Upcoming', value: 'upcoming' },
         { label: 'Completed', value: 'completed' },
+    ];
+
+    const unitOptions = [
+        { label: 'ILS', value: 'ILS' },
+        { label: 'USD', value: 'USD' },
     ];
 
     return (
@@ -215,19 +232,60 @@ export function CampaignForm({ campaign, onSave, onCancel }: CampaignFormProps) 
 
             {/* Goal & Unit */}
             <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
-                <TextInput
-                    value={formData.goal}
-                    onChangeText={text => handleInputChange('goal', text)}
-                    placeholder="Goal"
-                    keyboardType="numeric"
-                    style={[styles.input, { flex: 1 }]}
-                />
-                <TextInput
-                    value={formData.unit}
-                    onChangeText={text => handleInputChange('unit', text)}
-                    placeholder="Unit"
-                    style={[styles.input, { flex: 1 }]}
-                />
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.label}>Goal</Text>
+                    <TextInput
+                        value={formData.goal}
+                        onChangeText={text => handleInputChange('goal', text)}
+                        placeholder="Goal"
+                        keyboardType="numeric"
+                        style={[styles.input, { marginBottom: 0 }]}
+                    />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.label}>Unit</Text>
+                    <Dropdown
+                        style={[styles.dropdown, isFocusUnit && { borderColor: 'blue' }]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={unitOptions}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={!isFocusUnit ? 'Select unit' : '...'}
+                        value={formData.unit}
+                        onFocus={() => setIsFocusUnit(true)}
+                        onBlur={() => setIsFocusUnit(false)}
+                        onChange={item => {
+                            handleInputChange('unit', item.value);
+                            setIsFocusUnit(false);
+                        }}
+                    />
+                </View>
+            </View>
+
+            {/* End Date */}
+            <View style={{ marginBottom: 16 }}>
+                <Text style={styles.label}>End Date *</Text>
+                <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={styles.input}
+                >
+                    <Text style={{ color: formData.endDate ? '#000' : '#888' }}>
+                        {formData.endDate ? dayjs(formData.endDate).format('MMMM D, YYYY') : 'Select End Date'}
+                    </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                    <DateTimePicker
+                        value={formData.endDate ? new Date(formData.endDate) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={onDateChange}
+                        minimumDate={new Date()}
+                    />
+                )}
             </View>
 
             {/* Image */}

@@ -1,3 +1,4 @@
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { CampaignDetails } from '@/components/Campaigns/CampaignDetails';
 import { CampaignFeed } from '@/components/Campaigns/CampaignFeed';
 import { CampaignForm } from '@/components/Campaigns/CampaignForm';
@@ -5,7 +6,6 @@ import { CampaignForm } from '@/components/Campaigns/CampaignForm';
 import { CampaignTypeEnum, ICampaign } from '@/interface/campaign.interface';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
 
 type ViewType = 'feed' | 'details' | 'create' | 'edit';
 
